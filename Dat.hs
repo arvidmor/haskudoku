@@ -12,8 +12,17 @@ type Coord      = (Int, Int)    --(Row index, Column index)
 
 data Direction  = Up | Down | Left | Right
 
+testMatrix = matrix 9 9 (\(r, c) -> Empty)
+
+{- insert (input i) (r, c) grid
+Inserts i into grid at row number r and column number c if the value is within the given boundary.
+RETURNS: the updated version of grid
+EXAMPLE: -
+-}
 insert :: Cell -> Coord -> Grid -> Grid
-insert = undefined
+insert (Input i) (r, c) grid
+    | 0 < i && i <= 9 && 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem (Input i) (r, c) grid
+    | otherwise = grid
 
 
 delete ::  Coord -> Grid -> Grid
