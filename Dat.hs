@@ -30,6 +30,7 @@ data Game = Game {
     complete    :: Bool         --Puzzle complete flag
 } deriving Show
 
+type Name = ()
 newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 
 
@@ -91,8 +92,8 @@ legalInCol :: Cell -> Coord -> Grid -> Bool
 legalInCol = undefined 
 
 
-{- step dir coord
-Transforms a Coord according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
+{- step dir game
+Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
 returns the corresponding coord at the opposite side of a 9x9 Matrix.
     RETURNS:    coord with one of the components changed according to the following chart:
                 Up  | Down | Left | Right
@@ -103,14 +104,16 @@ returns the corresponding coord at the opposite side of a 9x9 Matrix.
                 step Right (8, 9)   == (8, 1)
                 
 -}
-step :: Dat.Direction -> Coord -> Coord
-step direction (r, c) =
-    case (direction, (r, c)) of 
-        (Up, (1, c))      -> (9, c)
-        (Up, (r, c))      -> (r-1, c)
-        (Down, (9, c))    -> (1, c)
-        (Down, (r, c))    -> (r+1, c)
-        (Left, (r, 1))    -> (r, 9)
-        (Left, (r, c))    -> (r, c-1)
-        (Right, (r, 9))   -> (r, 1)
-        (Right, (r, c))   -> (r, c+1)
+step :: Dat.Direction -> Game -> Game
+step direction game = 
+    (\(r, c) -> game {focusedCell = (r, c)}) $ case (direction, (r, c)) of 
+            (Up, (1, c))      -> (9, c)
+            (Up, (r, c))      -> (r-1, c)
+            (Down, (9, c))    -> (1, c)
+            (Down, (r, c))    -> (r+1, c)
+            (Left, (r, 1))    -> (r, 9)
+            (Left, (r, c))    -> (r, c-1)
+            (Right, (r, 9))   -> (r, 1)
+            (Right, (r, c))   -> (r, c+1)
+            where
+                (r, c) = focusedCell game
