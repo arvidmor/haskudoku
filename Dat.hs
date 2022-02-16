@@ -58,6 +58,7 @@ delete (r, c) grid
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
     RETURNS: True if i doesn't exist in the subgrid lst, False if i does exist in the subgrid lst.
+    VARIANT: length lst
     EXAMPLES: -
 -}
 legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
