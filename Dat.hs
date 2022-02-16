@@ -12,7 +12,7 @@ type Coord      = (Int, Int)    --(Row index, Column index)
 
 data Direction  = Up | Down | Left | Right
 
-testMatrix = matrix 9 9 (\(r, c) -> Empty)
+newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
