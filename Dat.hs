@@ -39,8 +39,6 @@ newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
     RETURNS: the updated version of grid
     EXAMPLE: -
-
-
 -}
 insert :: Cell -> Coord -> Grid -> Grid
 insert (Input i) (r, c) grid
