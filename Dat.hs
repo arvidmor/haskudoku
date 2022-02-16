@@ -2,6 +2,7 @@ module Dat where
 import Brick
 import Data.Matrix
 
+--Build matrix out of these cells
 data Cell = Lock Int    |
             Input Int   |
             Empty       deriving Show --Cell has a locked value (predefined), input value (input by user) or is empty
