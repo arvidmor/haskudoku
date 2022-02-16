@@ -93,12 +93,49 @@ coordList x
     | 6 < x && x <= 9 = [7..9]
     | otherwise = []
 
+{- legalInRow (Input i) (r, c) grid
+Checks if i exists on the row r.
+    RETURNS: True if i doesn't exist on r, False if i does exist on r.
+    EXAMPLES: -
+-}
 legalInRow :: Cell -> Coord -> Grid -> Bool
-legalInRow = undefined 
+legalInRow Empty _ _ = True
+legalInRow (Input i) (r, c) grid = checkRow (Input i) r 1 grid
 
+{- checkRow (Input i) x acc grid
+Checks if (Input i) is equal to any of the cells on the row x.
+    RETURNS: True if (Input i) isn't equal to any cell on the row x, False if (Input i) is equal to any cell on the row x.
+    VARIANT: 9
+    EXAMPLES: -
+-}
+checkRow :: Cell -> Int -> Int -> Grid -> Bool
+checkRow (Input i) x acc grid
+    | 9 < acc = True
+    | getElem x acc grid == Empty = checkRow (Input i) x (acc + 1) grid
+    | (Input i) == getElem x acc grid = False
+    | otherwise = checkRow (Input i) x (acc + 1) grid
 
+{- legalInCol (Input i) (r, c) grid
+Checks if i exists on the column c.
+    RETURNS: True if i doesn't exist on c, False if i does exist on c.
+    EXAMPLES: -
+-}
 legalInCol :: Cell -> Coord -> Grid -> Bool
-legalInCol = undefined 
+legalInCol Empty _ _ = True
+legalInCol (Input i) (r, c) grid = checkCol (Input i) c 1 grid
+
+{- checkCol (Input i) x acc grid
+Checks if (Input i) is equal to any of the cells on the col x.
+    RETURNS: True if (Input i) isn't equal to any cell on the col x, False if (Input i) is equal to any cell on the col x.
+    VARIANT: 9
+    EXAMPLES: -
+-}
+checkCol :: Cell -> Int -> Int -> Grid -> Bool
+checkCol (Input i) x acc grid
+    | 9 < acc = True
+    | getElem acc x grid == Empty = checkCol (Input i) x (acc + 1) grid
+    | (Input i) == getElem acc x grid = False
+    | otherwise = checkCol (Input i) x (acc + 1) grid
 
 
 {- step dir game
