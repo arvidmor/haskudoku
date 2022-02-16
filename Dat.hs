@@ -30,7 +30,7 @@ data Game = Game {
     complete    :: Bool         --Puzzle complete flag
 } deriving Show
 
-testMatrix = matrix 9 9 (\(r, c) -> Empty)
+newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 
 
 --GRID OPERATIONS
@@ -39,15 +39,23 @@ testMatrix = matrix 9 9 (\(r, c) -> Empty)
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
     RETURNS: the updated version of grid
     EXAMPLE: -
+
+
 -}
 insert :: Cell -> Coord -> Grid -> Grid
 insert (Input i) (r, c) grid
     | 0 < i && i <= 9 && 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem (Input i) (r, c) grid
     | otherwise = grid
 
-
+{- delete (r, c) grid
+Deletes a value from position (r, c) in grid
+RETURNS: the updated version of grid
+Examples: -
+-}
 delete ::  Coord -> Grid -> Grid
-delete = undefined 
+delete (r, c) grid
+    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem Empty (r, c) grid
+    | otherwise = grid
 
 
 legalInSubGrid :: Cell -> Coord -> Grid -> Bool
