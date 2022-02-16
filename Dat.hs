@@ -38,9 +38,7 @@ newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
     RETURNS: the updated version of grid
-    EXAMPLE: -
-
-
+    EXAMPLES: -
 -}
 insert :: Cell -> Coord -> Grid -> Grid
 insert (Input i) (r, c) grid
@@ -49,32 +47,39 @@ insert (Input i) (r, c) grid
 
 {- delete (r, c) grid
 Deletes a value from position (r, c) in grid
-RETURNS: the updated version of grid
-Examples: -
+    RETURNS: the updated version of grid
+    EXAMPLES: -
 -}
 delete ::  Coord -> Grid -> Grid
 delete (r, c) grid
     | 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem Empty (r, c) grid
     | otherwise = grid
 
-
-legalInSubGrid :: Cell -> Coord -> Grid -> Bool
-legalInSubGrid = undefined 
+{- legalInSubGrid (Input i) lst grid
+Checks if i exists inside grid's subgrid lst
+    RETURNS: True if i doesn't exist in the subgrid lst, False if i does exist in the subgrid lst.
+    EXAMPLES: -
+-}
+legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
+legalInSubGrid _ [] _ = True
+legalInSubGrid (Input i) lst@(x:xs) grid
+    | Input i == getElem (fst x) (snd x) grid = False
+    | otherwise = legalInSubGrid (Input i) xs grid
 
 {- listSubGrid (r, c)
 Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
     PRE: 0 < r <= 9, 0 < c <= 9
     RETURNS: a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
-    Examples: listSubGrid (1, 5) = [(1,4),(1,5),(1,6),(2,4),(2,5),(2,6),(3,4),(3,5),(3,6)]
-            listSubGrid (7, 9) = [(7,7),(7,8),(7,9),(8,7),(8,8),(8,9),(9,7),(9,8),(9,9)]
+    EXAMPLES: listSubGrid (1, 5) = [(1,4),(1,5),(1,6),(2,4),(2,5),(2,6),(3,4),(3,5),(3,6)]
+              listSubGrid (7, 9) = [(7,7),(7,8),(7,9),(8,7),(8,8),(8,9),(9,7),(9,8),(9,9)]
 -}
 listSubGrid :: Coord -> [Coord]
-listSubGrid (r, c) = [(x, y) | x <- coordList r, y <- coordList c] --Inspiration från StackOverflow (https://stackoverflow.com/questions/32093912/all-combinations-of-elements-of-two-lists-in-haskell)
+listSubGrid (r, c) = [(x, y) | x <- coordList r, y <- coordList c] --Inspiration from StackOverflow (https://stackoverflow.com/questions/32093912/all-combinations-of-elements-of-two-lists-in-haskell)
 
 {- coordList x
 Creates a list from: 1-3 if x ∈ [1..3], 4-6 if x ∈ [4..6], 7-9 if x ∈ [7..9]
     RETURNS:    a list from: [1..3], [4..6] or [7..9]
-    Examples:   coordList 3 = [1,2,3]
+    EXAMPLES:   coordList 3 = [1,2,3]
                 coordList 2 = [1,2,3]
                 coordList 8 = [7,8,9]
 -}
