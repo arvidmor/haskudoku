@@ -32,10 +32,29 @@ delete = undefined
 legalInSubGrid :: Cell -> Coord -> Grid -> Bool
 legalInSubGrid = undefined 
 
-
+{- listSubGrid (r, c)
+Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
+PRE: 0 < r <= 9, 0 < c <= 9
+RETURNS: a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
+Examples: listSubGrid (1, 5) = [(1,4),(1,5),(1,6),(2,4),(2,5),(2,6),(3,4),(3,5),(3,6)]
+          listSubGrid (7, 9) = [(7,7),(7,8),(7,9),(8,7),(8,8),(8,9),(9,7),(9,8),(9,9)]
+-}
 listSubGrid :: Coord -> [Coord]
-listSubGrid = undefined 
+listSubGrid (r, c) = [(x, y) | x <- (coordList r), y <- (coordList c)] --Inspiration från StackOverflow (https://stackoverflow.com/questions/32093912/all-combinations-of-elements-of-two-lists-in-haskell)
 
+{- coordList x
+Creates a list from: 1-3 if x ∈ [1..3], 4-6 if x ∈ [4..6], 7-9 if x ∈ [7..9]
+RETURNS: a list from: [1..3], [4..6] or [7..9]
+Examples: coordList 3 = [1,2,3]
+          coordList 2 = [1,2,3]
+          coordList 8 = [7,8,9]
+-}
+coordList :: Int -> [Int]
+coordList x
+    | 0 < x && x <= 3 = [1..3]
+    | 3 < x && x <= 6 = [4..6]
+    | 6 < x && x <= 9 = [7..9]
+    | otherwise = []
 
 legalInRow :: Cell -> Coord -> Grid -> Bool
 legalInRow = undefined 
