@@ -63,6 +63,7 @@ Checks if i exists inside grid's subgrid lst
 -}
 legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
 legalInSubGrid _ [] _ = True
+legalInSubGrid Empty _ _ = True
 legalInSubGrid (Input i) lst@(x:xs) grid
     | Input i == getElem (fst x) (snd x) grid = False
     | otherwise = legalInSubGrid (Input i) xs grid
