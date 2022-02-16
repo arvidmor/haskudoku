@@ -105,7 +105,7 @@ legalInRow (Input i) (r, c) grid = checkRow (Input i) r 1 grid
 {- checkRow (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the row x.
     RETURNS: True if (Input i) isn't equal to any cell on the row x, False if (Input i) is equal to any cell on the row x.
-    VARIANT: 9
+    VARIANT: acc
     EXAMPLES: -
 -}
 checkRow :: Cell -> Int -> Int -> Grid -> Bool
@@ -127,7 +127,7 @@ legalInCol (Input i) (r, c) grid = checkCol (Input i) c 1 grid
 {- checkCol (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the col x.
     RETURNS: True if (Input i) isn't equal to any cell on the col x, False if (Input i) is equal to any cell on the col x.
-    VARIANT: 9
+    VARIANT: acc
     EXAMPLES: -
 -}
 checkCol :: Cell -> Int -> Int -> Grid -> Bool
