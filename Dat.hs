@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-{-# OPTIONS_GHC -Wno-missing-fields #-}
 module Dat where
 import Brick hiding (Down, Up)
 import Data.Matrix
@@ -57,9 +55,11 @@ Inserts i into grid at row number r and column number c if the value is within t
     EXAMPLES: -
 -}
 insert :: Cell -> Coord -> Game -> Game
+insert Empty (r, c) game            = game {grid = setElem Empty (r, c) (grid game)}
+insert (Lock i) (r, c) game         = game {grid = setElem (Lock i) (r, c) (grid game)}
 insert (Input i) (r, c) game 
     | isLocked (grid game) (r, c)   = game
-    | otherwise                     = Game {grid = setElem (Input i) (r, c) (grid game)}
+    | otherwise                     = game {grid = setElem (Input i) (r, c) (grid game)}
 
 
 {- delete (r, c) grid
