@@ -2,6 +2,7 @@ module Dat where
 import Brick hiding (Down, Up)
 import Data.Matrix
 import Prelude hiding (Right, Left)
+import System.IO
 
 {- The value of a given cell in a sudoku-grid
 Lock x represents a number in the grid that is predefined, and thus immutable,
@@ -163,3 +164,23 @@ step direction game =
             (Right, (r, c))   -> (r, c+1)
             where
                 (r, c) = focusedCell game
+
+writeGridToFile :: Show a => Matrix a -> FilePath -> IO ()
+writeGridToFile input filePath = do
+  file <- openFile filePath WriteMode
+  hPrint file (toList input)
+  hClose file
+
+clearFile :: FilePath -> IO ()
+clearFile filePath = writeFile filePath ""
+
+readGridFromFile :: FilePath -> IO ()
+readGridFromFile filePath = do
+  file <- openFile filePath ReadMode
+  contents <- hGetContents file
+  print (contents)
+
+--Problems:
+--1. readFromFile is not working (hGetContents is used in the wrong way)
+--2. for writeToFile to work, the input has to be a variable that contains the most recent updated version of the input
+-- grid. (Not a problem really)
