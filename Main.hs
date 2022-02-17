@@ -2,7 +2,9 @@ module Main where
 
 import Dat
 import UI
+import Brick (defaultMain)
 
 
-main :: IO ()
-main = undefined 
+
+main :: IO Game 
+main = defaultMain app mkGame  
