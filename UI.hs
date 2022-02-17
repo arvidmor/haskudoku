@@ -48,21 +48,19 @@ handleEvent g (VtyEvent (EvKey key [])) =
     KDown       -> continue $ step Dat.Down g
     KLeft       -> continue $ step Dat.Left  g
     KRight      -> continue $ step Dat.Right  g
-    --Global events
+    --Input numbers
+    (KChar '1') -> continue $ insert (Dat.Input 1) (focusedCell g) g
+    (KChar '2') -> continue $ insert (Dat.Input 2) (focusedCell g) g
+    (KChar '3') -> continue $ insert (Dat.Input 3) (focusedCell g) g
+    (KChar '4') -> continue $ insert (Dat.Input 4) (focusedCell g) g
+    (KChar '5') -> continue $ insert (Dat.Input 5) (focusedCell g) g
+    (KChar '6') -> continue $ insert (Dat.Input 6) (focusedCell g) g
+    (KChar '7') -> continue $ insert (Dat.Input 7) (focusedCell g) g
+    (KChar '8') -> continue $ insert (Dat.Input 8) (focusedCell g) g
+    (KChar '9') -> continue $ insert (Dat.Input 9) (focusedCell g) g
+     --Global events
     (KChar 'q') -> halt g
     _           -> continue g
-    --Input numbers
-{- UNCOMMENT WHEN INPUT FUNCTION IS :: Int -> Coord -> Game -> Game
-    (KChar '1') -> continue $ insert (Dat.Input 1) (focusedCell g) (grid g)
-    (KChar '2') -> continue $ insert (Dat.Input 2) (focusedCell g) (grid g)
-    (KChar '3') -> continue $ insert (Dat.Input 3) (focusedCell g) (grid g)
-    (KChar '4') -> continue $ insert (Dat.Input 4) (focusedCell g) (grid g)
-    (KChar '5') -> continue $ insert (Dat.Input 5) (focusedCell g) (grid g)
-    (KChar '6') -> continue $ insert (Dat.Input 6) (focusedCell g) (grid g)
-    (KChar '7') -> continue $ insert (Dat.Input 7) (focusedCell g) (grid g)
-    (KChar '8') -> continue $ insert (Dat.Input 8) (focusedCell g) (grid g)
-    (KChar '9') -> continue $ insert (Dat.Input 9) (focusedCell g) (grid g)
--}
 --Resize
 handleEvent g (VtyEvent (EvResize _ _ ))            = continue g
 
