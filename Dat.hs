@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+{-# OPTIONS_GHC -Wno-missing-fields #-}
 module Dat where
 import Brick hiding (Down, Up)
 import Data.Matrix
@@ -36,16 +38,29 @@ newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
 
 
 --GRID OPERATIONS
+{- isLocked grid coord 
+Checks if a cell in a grid is Locked
+    RETURNS:    True iff the cell at argument coords is Lock
+-}
+
+
+isLocked :: Grid -> Coord -> Bool
+isLocked g (r, c) = let cell = getElem r c g in
+    case cell of 
+        (Lock _)  -> True
+        Input _ -> False
+        Empty   -> False
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
     RETURNS: the updated version of grid
     EXAMPLES: -
 -}
-insert :: Cell -> Coord -> Grid -> Grid
-insert (Input i) (r, c) grid
-    | 0 < i && i <= 9 && 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem (Input i) (r, c) grid
-    | otherwise = grid
+insert :: Cell -> Coord -> Game -> Game
+insert (Input i) (r, c) game 
+    | isLocked (grid game) (r, c)   = game
+    | otherwise                     = Game {grid = setElem (Input i) (r, c) (grid game)}
+
 
 {- delete (r, c) grid
 Deletes a value from position (r, c) in grid
@@ -67,8 +82,8 @@ legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
 legalInSubGrid _ [] _ = True
 legalInSubGrid Empty _ _ = True
 legalInSubGrid (Input i) lst@(x:xs) grid
-    | Input i == getElem (fst x) (snd x) grid = False
-    | otherwise = legalInSubGrid (Input i) xs grid
+    | Input i == uncurry getElem x grid = False
+    | otherwise                         = legalInSubGrid (Input i) xs grid
 
 {- listSubGrid (r, c)
 Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
