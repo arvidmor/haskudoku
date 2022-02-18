@@ -180,6 +180,17 @@ step direction game =
             where
                 (r, c) = focusedCell game
 
+{- writeGridToFile input filePath
+Writes input to the file with the file path filePath
+    RETURNS: Nothing
+    EXAMPLES: -
+-}
+writeGridToFile :: Show a => a -> FilePath -> IO ()
+writeGridToFile input filePath = do
+  file <- openFile filePath WriteMode
+  hPrint file input
+  hClose file
+
 {- clearFile filePath
 Clears the file with file path filePath.
     RETURNS: Nothing
@@ -199,6 +210,7 @@ stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
 {- stringToMatrixAux str
 Creates a list of cells from a string containing key-words of type cell.
     RETURNS: a list of cells based on the cells inside the string str.
+    VARIANT: amount of words in str (fix this variant)
     EXAMPLES: -
 -}
 stringToMatrixAux :: String -> [Cell]
@@ -213,6 +225,7 @@ stringToMatrixAux str@(x:xs)
 {- getNr str acc lim
 Gets a specific character in a string and returns it as an int.
     RETURNS: the character indexed (lim - acc) in str as an int
+    VARIANT: (lim - acc)
     EXAMPLES: -
 -}
 getNr :: String -> Int -> Int -> Int
@@ -223,6 +236,7 @@ getNr str@(x:xs) acc lim
 {- shortenString str
 Removes every character in a string until a "," or a "]" appears in the string
     RETURNS: the remaining part of the string str after it has been shortened
+    VARIANT: (length str) until , or ] is found. (fix this variant)
     EXAMPLES: shortenString "hehe, hoho" = " hoho"
 -}
 shortenString :: String -> String
