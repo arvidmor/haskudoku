@@ -46,8 +46,8 @@ isLocked :: Grid -> Coord -> Bool
 isLocked g (r, c) = let cell = getElem r c g in
     case cell of 
         (Lock _)  -> True
-        Input _ -> False
-        Empty   -> False
+        Input _   -> False
+        Empty     -> False
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
@@ -70,7 +70,7 @@ Deletes a value from position (r, c) in grid
 delete ::  Coord -> Grid -> Grid
 delete (r, c) grid
     | 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem Empty (r, c) grid
-    | otherwise = grid
+    | otherwise                            = grid
 
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
@@ -79,8 +79,8 @@ Checks if i exists inside grid's subgrid lst
     EXAMPLES: -
 -}
 legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
-legalInSubGrid _ [] _ = True
-legalInSubGrid Empty _ _ = True
+legalInSubGrid _ [] _                   = True
+legalInSubGrid Empty _ _                = True
 legalInSubGrid (Input i) lst@(x:xs) grid
     | Input i == uncurry getElem x grid = False
     | otherwise                         = legalInSubGrid (Input i) xs grid
@@ -107,7 +107,7 @@ coordList x
     | 0 < x && x <= 3 = [1..3]
     | 3 < x && x <= 6 = [4..6]
     | 6 < x && x <= 9 = [7..9]
-    | otherwise = []
+    | otherwise       = []
 
 {- legalInRow (Input i) (r, c) grid
 Checks if i exists on the row r.
@@ -115,7 +115,7 @@ Checks if i exists on the row r.
     EXAMPLES: -
 -}
 legalInRow :: Cell -> Coord -> Grid -> Bool
-legalInRow Empty _ _ = True
+legalInRow Empty _ _             = True
 legalInRow (Input i) (r, c) grid = checkRow (Input i) r 1 grid
 
 {- checkRow (Input i) x acc grid
@@ -126,10 +126,10 @@ Checks if (Input i) is equal to any of the cells on the row x.
 -}
 checkRow :: Cell -> Int -> Int -> Grid -> Bool
 checkRow (Input i) x acc grid
-    | 9 < acc = True
-    | getElem x acc grid == Empty = checkRow (Input i) x (acc + 1) grid
+    | 9 < acc                         = True
+    | getElem x acc grid == Empty     = checkRow (Input i) x (acc + 1) grid
     | (Input i) == getElem x acc grid = False
-    | otherwise = checkRow (Input i) x (acc + 1) grid
+    | otherwise                       = checkRow (Input i) x (acc + 1) grid
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
@@ -137,7 +137,7 @@ Checks if i exists on the column c.
     EXAMPLES: -
 -}
 legalInCol :: Cell -> Coord -> Grid -> Bool
-legalInCol Empty _ _ = True
+legalInCol Empty _ _             = True
 legalInCol (Input i) (r, c) grid = checkCol (Input i) c 1 grid
 
 {- checkCol (Input i) x acc grid
@@ -148,10 +148,10 @@ Checks if (Input i) is equal to any of the cells on the col x.
 -}
 checkCol :: Cell -> Int -> Int -> Grid -> Bool
 checkCol (Input i) x acc grid
-    | 9 < acc = True
-    | getElem acc x grid == Empty = checkCol (Input i) x (acc + 1) grid
+    | 9 < acc                         = True
+    | getElem acc x grid == Empty     = checkCol (Input i) x (acc + 1) grid
     | (Input i) == getElem acc x grid = False
-    | otherwise = checkCol (Input i) x (acc + 1) grid
+    | otherwise                       = checkCol (Input i) x (acc + 1) grid
 
 
 {- step dir game
@@ -180,22 +180,52 @@ step direction game =
             where
                 (r, c) = focusedCell game
 
-writeGridToFile :: Show a => Matrix a -> FilePath -> IO ()
-writeGridToFile input filePath = do
-  file <- openFile filePath WriteMode
-  hPrint file (toList input)
-  hClose file
-
+{- clearFile filePath
+Clears the file with file path filePath.
+    RETURNS: Nothing
+    EXAMPLES: -
+-}
 clearFile :: FilePath -> IO ()
 clearFile filePath = writeFile filePath ""
 
-readGridFromFile :: FilePath -> IO ()
-readGridFromFile filePath = do
-  file <- openFile filePath ReadMode
-  contents <- hGetContents file
-  print (contents)
+{- stringToMatrix str
+Converts a list of cells in string-format to a Matrix cell.
+    RETURNS: the string str as a Matrix Cell
+    EXAMPLES: -
+-}
+stringToMatrix :: String -> Matrix Cell
+stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
 
---Problems:
---1. readFromFile is not working (hGetContents is used in the wrong way)
---2. for writeToFile to work, the input has to be a variable that contains the most recent updated version of the input
--- grid. (Not a problem really)
+{- stringToMatrixAux str
+Creates a list of cells from a string containing key-words of type cell.
+    RETURNS: a list of cells based on the cells inside the string str.
+    EXAMPLES: -
+-}
+stringToMatrixAux :: String -> [Cell]
+stringToMatrixAux "" = []
+stringToMatrixAux str@(x:xs)
+    | [x] == "[" || [x] == "]" || [x] == "," = stringToMatrixAux xs
+    | [x] == "E" = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
+    | [x] == "L" = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
+    | [x] == "I" = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
+    | otherwise = [] ++ stringToMatrixAux (shortenString (x:xs))
+
+{- getNr str acc lim
+Gets a specific character in a string and returns it as an int.
+    RETURNS: the character indexed (lim - acc) in str as an int
+    EXAMPLES: -
+-}
+getNr :: String -> Int -> Int -> Int
+getNr str@(x:xs) acc lim
+    | acc == lim = (read [x] :: Int)
+    | otherwise = getNr xs (acc + 1) lim
+
+{- shortenString str
+Removes every character in a string until a "," or a "]" appears in the string
+    RETURNS: the remaining part of the string str after it has been shortened
+    EXAMPLES: shortenString "hehe, hoho" = " hoho"
+-}
+shortenString :: String -> String
+shortenString str@(x:xs)
+    | [x] == "," || [x] == "]" = xs
+    | otherwise = shortenString xs

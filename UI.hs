@@ -24,7 +24,7 @@ import Data.List (intersperse, intercalate)
 
 mkGame :: Game
 mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
-    grid = newSudokuMatrix ,
+    grid = newSudokuMatrix,
     focusedCell = (5, 5),
     complete = False
 }
