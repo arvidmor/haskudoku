@@ -17,6 +17,10 @@ import Data.Matrix
 import Data.List.Split (chunksOf)
 import Data.Char (digitToInt)
 import Prelude hiding (Right, Left)
+import Brick.Widgets.Table
+import Brick.Widgets.Table (setDefaultRowAlignment)
+import Brick.Widgets.List (list, renderList)
+import Data.List (intersperse, intercalate)
 
 mkGame :: Game
 mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
@@ -28,8 +32,8 @@ mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 attributes = attrMap defAttr [
-      (lockAttr, white `on` black)
-    , (inputAttr, blue `on` black)
+      (lockAttr, red `on` black)
+    , (inputAttr, white `on` black)
     ]
 
 app :: App Game a Name
@@ -48,7 +52,7 @@ app = App { appDraw         = drawGame
 handleEvent :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Navigation
 handleEvent g (VtyEvent (EvKey key [])) =
-    case key of 
+    case key of
     --Navigation
     KUp         -> continue $ step Up g
     KDown       -> continue $ step Down g
@@ -73,39 +77,42 @@ handleEvent g (VtyEvent (EvResize _ _ ))            = continue g
 --DRAWING FUNCTIONS
 --Composite of all widgets
 drawGame :: Game -> [Widget Name]
-drawGame g = 
-     [center $ padRight (Pad 2) (vBox (map hBox (drawGrid g))) <+> (drawDebug g <=> drawHelp)]
+drawGame g =
+     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
 --Cell widget
 drawCell :: Cell -> Widget Name
 drawCell cell = withBorderStyle unicode 
-    $ border 
-    $ hLimitPercent 10  
-    $ vLimitPercent 10 
+    $ joinBorders
+    $ vLimitPercent 5
+    $ hLimitPercent 5
     $ case cell of
-    Lock x      ->  withAttr lockAttr  $ str $ show x
-    Input x     ->  withAttr inputAttr $ str $ show x
-    Empty       ->  str "  "
+    Lock x      ->  withAttr lockAttr  $ str (show x)
+    Input x     ->  withAttr inputAttr $ str (show x)
+    Empty       ->  str " "
 
 --List all cell widgets in chunks of 9
-drawGrid :: Game -> [[Widget Name]]
-drawGrid g = 
-    chunksOf 9 $ map drawCell (toList (grid g))
+drawGrid :: Game -> Widget Name
+drawGrid g =
+    withBorderStyle unicode
+    $ border
+    $ vBox
+    $ map hBox
+    $ chunksOf 9
+    $ map (freezeBorders . drawCell)
+    $ toList (grid g)
 
 --Debug widget
 drawDebug :: Game  -> Widget Name
-drawDebug g = withBorderStyle unicodeBold 
+drawDebug g = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Debug")
-    $ vLimitPercent 50 
+    $ vLimitPercent 50
     $ padAll 1
     $ str $ "Cursor pos: " ++ show (focusedCell g)
 
 --Info widget
 drawHelp :: Widget Name
-drawHelp = withBorderStyle unicodeBold 
+drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
-    $ vLimitPercent 50 
+    $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q"
-
-drawTest :: Game -> Widget Name
-drawTest g = undefined --withBorderStyle unicodeRounded 
