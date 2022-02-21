@@ -79,11 +79,11 @@ Checks if i exists inside grid's subgrid lst
     EXAMPLES: -
 -}
 legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
-legalInSubGrid _ [] _                          = True
-legalInSubGrid Empty _ _                       = True
+legalInSubGrid _ [] _                                     = True
+legalInSubGrid Empty _ _                                  = True
 legalInSubGrid (Input i) lst@(x:xs) game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
-    | otherwise                                = legalInSubGrid (Input i) xs game
+    | otherwise                                           = legalInSubGrid (Input i) xs game
 
 {- listSubGrid (r, c)
 Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
@@ -115,7 +115,7 @@ Checks if i exists on the row r.
     EXAMPLES: -
 -}
 legalInRow :: Cell -> Coord -> Game -> Bool
-legalInRow Empty _ _                    = True
+legalInRow Empty _ _             = True
 legalInRow (Input i) (r, c) game = checkRow (Input i) r 1 game
 
 {- checkRow (Input i) x acc grid
@@ -126,15 +126,15 @@ Checks if (Input i) is equal to any of the cells on the row x.
 -}
 checkRow :: Cell -> Int -> Int -> Game -> Bool
 checkRow (Input i) x acc game
-    | 9 < acc                                = True
-    | getElem x acc (grid game) == Empty     = checkRow (Input i) x (acc + 1) game
+    | 9 < acc                                         = True
+    | getElem x acc (grid game) == Empty              = checkRow (Input i) x (acc + 1) game
     | i == getIntFromCell (getElem x acc (grid game)) = False
-    | otherwise                              = checkRow (Input i) x (acc + 1) game
+    | otherwise                                       = checkRow (Input i) x (acc + 1) game
 
 --Gets the int from the cell data-type.
 getIntFromCell :: Cell -> Int
 getIntFromCell (Input i) = i
-getIntFromCell (Lock i) = i
+getIntFromCell (Lock i)  = i
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
@@ -142,7 +142,7 @@ Checks if i exists on the column c.
     EXAMPLES: -
 -}
 legalInCol :: Cell -> Coord -> Game -> Bool
-legalInCol Empty _ _                    = True
+legalInCol Empty _ _             = True
 legalInCol (Input i) (r, c) game = checkCol (Input i) c 1 game
 
 {- checkCol (Input i) x acc grid
@@ -153,10 +153,10 @@ Checks if (Input i) is equal to any of the cells on the col x.
 -}
 checkCol :: Cell -> Int -> Int -> Game -> Bool
 checkCol (Input i) x acc game
-    | 9 < acc                                  = True
+    | 9 < acc                                         = True
     | getElem acc x (grid game) == Empty              = checkCol (Input i) x (acc + 1) game
     | i == getIntFromCell (getElem acc x (grid game)) = False
-    | otherwise                                = checkCol (Input i) x (acc + 1) game
+    | otherwise                                       = checkCol (Input i) x (acc + 1) game
 
 {- step dir game
 Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
@@ -207,7 +207,7 @@ Converts a list of cells in string-format to a Matrix cell.
     RETURNS: the string str as a Matrix Cell
     EXAMPLES: -
 -}
-stringToMatrix :: String -> Matrix Cell
+stringToMatrix :: String -> Grid
 stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
 
 {- stringToMatrixAux str
@@ -220,10 +220,10 @@ stringToMatrixAux :: String -> [Cell]
 stringToMatrixAux "" = []
 stringToMatrixAux str@(x:xs)
     | [x] == "[" || [x] == "]" || [x] == "," = stringToMatrixAux xs
-    | [x] == "E" = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
-    | [x] == "L" = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
-    | [x] == "I" = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
-    | otherwise = [] ++ stringToMatrixAux (shortenString (x:xs))
+    | [x] == "E"                             = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
+    | [x] == "L"                             = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
+    | [x] == "I"                             = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
+    | otherwise                              = [] ++ stringToMatrixAux (shortenString (x:xs))
 
 {- getNr str acc lim
 Gets a specific character in a string and returns it as an int.
@@ -234,7 +234,7 @@ Gets a specific character in a string and returns it as an int.
 getNr :: String -> Int -> Int -> Int
 getNr str@(x:xs) acc lim
     | acc == lim = (read [x] :: Int)
-    | otherwise = getNr xs (acc + 1) lim
+    | otherwise  = getNr xs (acc + 1) lim
 
 {- shortenString str
 Removes every character in a string until a "," or a "]" appears in the string
@@ -245,4 +245,4 @@ Removes every character in a string until a "," or a "]" appears in the string
 shortenString :: String -> String
 shortenString str@(x:xs)
     | [x] == "," || [x] == "]" = xs
-    | otherwise = shortenString xs
+    | otherwise                = shortenString xs
