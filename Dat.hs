@@ -67,10 +67,10 @@ Deletes a value from position (r, c) in grid
     RETURNS: the updated version of grid
     EXAMPLES: -
 -}
-delete ::  Coord -> Grid -> Grid
-delete (r, c) grid
-    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = setElem Empty (r, c) grid
-    | otherwise                            = grid
+delete ::  Coord -> Game -> Game
+delete (r, c) game
+    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = game { grid = setElem Empty (r, c) (grid game)}
+    | otherwise                            = game
 
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
