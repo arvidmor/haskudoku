@@ -30,9 +30,11 @@ mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
 
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
+focusedAttr = attrName "Focused"
 attributes = attrMap defAttr [
-      (lockAttr, white `on` black)
-    , (inputAttr, brightBlack   `on` black)
+      (lockAttr, fg white)
+    , (inputAttr, fg brightBlack )
+    , (focusedAttr, bg brightBlack)
     ]
 
 app :: App Game a Name
@@ -55,7 +57,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     --Navigation
     KUp         -> continue $ step Up g
     KDown       -> continue $ step Down g
-    KLeft       -> continue $ step Left  g
+    KLeft       -> continue $ step Left g
     KRight      -> continue $ step Right  g
     --Input and remove numbers
     (KChar '1') -> continue $ insert (Input 1) (focusedCell g) g
@@ -85,9 +87,9 @@ drawGame g =
 drawCell :: Cell -> Widget Name
 drawCell cell = 
     case cell of
-    Lock x      ->  withAttr lockAttr  $ str (" " ++ show x ++ " ")
-    Input x     ->  withAttr inputAttr $ str (" " ++ show x ++ " ")
-    Empty       ->  str "   "
+    Lock x      ->  withAttr lockAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+    Input x     ->  withAttr inputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+    Empty       ->  str "       " <=> str "     " <=> str "       " 
 
 --Makes a widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
@@ -103,20 +105,22 @@ drawBox n g =
 
 drawGrid :: Game -> Widget Name
 drawGrid g = withBorderStyle unicodeBold 
-        $ border
         $ joinBorders 
-        $ vBox [
-          hBox [drawBox 1 g, verticalBorder, drawBox 2 g, verticalBorder, drawBox 3 g]
-        , horizontalBorder
-        , hBox [drawBox 4 g, verticalBorder, drawBox 5 g, verticalBorder,  drawBox 6 g]
-        , horizontalBorder
-        , hBox [drawBox 7 g, verticalBorder, drawBox 8 g, verticalBorder, drawBox 9 g]
-         ]
+        $ upperBorder
+        <=>  vBox [
+          hBox [outerVBorder, drawBox 1 g,  innerVBorder, drawBox 2 g, innerVBorder, drawBox 3 g, outerVBorder]
+        , innerHBorder
+        , hBox [outerVBorder, drawBox 4 g, innerVBorder, drawBox 5 g, innerVBorder,  drawBox 6 g, outerVBorder]
+        , innerHBorder
+        , hBox [outerVBorder, drawBox 7 g, innerVBorder, drawBox 8 g, innerVBorder, drawBox 9 g, outerVBorder]] 
+        <=> lowerBorder
         where
-    verticalBorder = setAvailableSize (1, 5) (withBorderStyle unicodeBold vBorder)
-    horizontalBorder = setAvailableSize (35, 1) (withBorderStyle unicodeBold (hBorderWithLabel (str "━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━")))
-    -- ━
-    -- ┼
+    innerVBorder    = setAvailableSize (1, 11) $ withBorderStyle unicodeBold vBorder
+    innerHBorder    = setAvailableSize (73, 1) $ withBorderStyle unicodeBold (hBorderWithLabel (str "┣━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━┫"))
+    upperBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┏━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┓")
+    lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
+    outerVBorder    = setAvailableSize (1, 11) vBorder 
+
 --Debug widget
 drawDebug :: Game  -> Widget Name
 drawDebug g = withBorderStyle unicodeRounded
