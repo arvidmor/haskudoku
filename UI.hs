@@ -17,6 +17,8 @@ import Data.Matrix
 import Data.List.Split (chunksOf)
 import Data.Char (digitToInt)
 import Prelude hiding (Right, Left)
+import Data.Function hiding (on)
+
 import Brick.Widgets.Table
 import Brick.Widgets.Table (setDefaultRowAlignment)
 import Brick.Widgets.List (list, renderList)
@@ -84,26 +86,28 @@ drawGame g =
 
 --Cell widget
 drawCell :: Cell -> Widget Name
-drawCell cell = withBorderStyle unicode 
-    $ joinBorders
-    $ vLimitPercent 5
-    $ hLimitPercent 5
-    $ case cell of
-    Lock x      ->  withAttr lockAttr  $ str (show x)
-    Input x     ->  withAttr inputAttr $ str (show x)
-    Empty       ->  str " "
+drawCell cell = 
+    case cell of
+    Lock x      ->  withAttr lockAttr  $ str (" " ++ show x ++ " ")
+    Input x     ->  withAttr inputAttr $ str (" " ++ show x ++ " ")
+    Empty       ->  str " E "
 
 --List all cell widgets in chunks of 9
-drawGrid :: Game -> Widget Name
-drawGrid g =
-    withBorderStyle unicode
-    $ border
-    $ vBox
-    $ map hBox
-    $ chunksOf 9
-    $ map (freezeBorders . drawCell)
-    $ toList (grid g)
+drawBox :: Int -> Game -> Widget Name
+drawBox n g =
+    withBorderStyle unicode 
+    $ renderTable
+    $ table 
+    $ chunksOf 3
+    $ map drawCell
+    $ toList 
+    $ box n g
 
+drawGrid :: Game -> Widget Name
+drawGrid g = joinBorders $
+             (drawBox 1 g <+> drawBox 2 g <+> drawBox 3 g) 
+         <=> (drawBox 4 g <+> drawBox 5 g <+> drawBox 6 g)
+         <=> (drawBox 7 g <+> drawBox 8 g <+> drawBox 9 g)
 --Debug widget
 drawDebug :: Game  -> Widget Name
 drawDebug g = withBorderStyle unicodeRounded
@@ -118,3 +122,15 @@ drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
+
+box :: Int -> Game -> Matrix Cell
+box n game = case n of 
+    1   -> submatrix 1 3 1 3 (grid game)
+    2   -> submatrix 1 3 4 6 (grid game)
+    3   -> submatrix 1 3 7 9 (grid game)
+    4   -> submatrix 4 6 1 3 (grid game)
+    5   -> submatrix 4 6 4 6 (grid game)
+    6   -> submatrix 4 6 7 9 (grid game)
+    7   -> submatrix 7 9 1 3 (grid game)
+    8   -> submatrix 7 9 4 6 (grid game)
+    9   -> submatrix 7 9 7 9 (grid game)
