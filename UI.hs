@@ -34,7 +34,7 @@ inputAttr   = attrName "Input"
 focusedAttr = attrName "Focused"
 attributes = attrMap defAttr [
       (lockAttr, fg white)
-    , (inputAttr, fg brightBlack )
+    , (inputAttr, fg brightBlue )
     , (focusedAttr, bg brightBlack)
     ]
 
