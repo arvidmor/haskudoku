@@ -15,12 +15,9 @@ import qualified Brick as Brick.Types
 
 import Data.Matrix
 import Data.List.Split (chunksOf)
-import Data.Char (digitToInt)
 import Prelude hiding (Right, Left)
-import Data.Function hiding (on)
 
 import Brick.Widgets.Table
-import Brick.Widgets.Table (setDefaultRowAlignment)
 import Brick.Widgets.List (list, renderList)
 import Data.List (intersperse, intercalate)
 
@@ -34,8 +31,8 @@ mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 attributes = attrMap defAttr [
-      (lockAttr, red `on` black)
-    , (inputAttr, white `on` black)
+      (lockAttr, white `on` black)
+    , (inputAttr, brightBlack   `on` black)
     ]
 
 app :: App Game a Name
@@ -60,7 +57,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     KDown       -> continue $ step Down g
     KLeft       -> continue $ step Left  g
     KRight      -> continue $ step Right  g
-    --Input numbers
+    --Input and remove numbers
     (KChar '1') -> continue $ insert (Input 1) (focusedCell g) g
     (KChar '2') -> continue $ insert (Input 2) (focusedCell g) g
     (KChar '3') -> continue $ insert (Input 3) (focusedCell g) g
@@ -76,7 +73,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     (KChar 'q') -> halt g
     _           -> continue g
 --Resize
-handleEvent g (VtyEvent (EvResize _ _ ))            = continue g
+handleEvent g (VtyEvent (EvResize _ _ )) = continue g
 
 --DRAWING FUNCTIONS
 --Composite of all widgets
@@ -117,7 +114,7 @@ drawGrid g = withBorderStyle unicodeBold
          ]
         where
     verticalBorder = setAvailableSize (1, 5) (withBorderStyle unicodeBold vBorder)
-    horizontalBorder = setAvailableSize (35, 1) (withBorderStyle unicodeBold (hBorderWithLabel (str "━━━┼━━━┼━━━╋━━━┼━━━┼━━━╋━━━┼━━━┼━━━")))
+    horizontalBorder = setAvailableSize (35, 1) (withBorderStyle unicodeBold (hBorderWithLabel (str "━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━")))
     -- ━
     -- ┼
 --Debug widget
