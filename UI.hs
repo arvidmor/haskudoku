@@ -18,11 +18,12 @@ import Data.List.Split (chunksOf)
 import Prelude hiding (Right, Left)
 
 import Brick.Widgets.Table
+    ( renderTable, surroundingBorder, table )
 import Brick.Widgets.List (list, renderList)
 import Data.List (intersperse, intercalate)
 
 mkGame :: Game
-mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
+mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
     grid = newSudokuMatrix,
     focusedCell = (5, 5),
     complete = False
@@ -60,15 +61,15 @@ handleEvent g (VtyEvent (EvKey key [])) =
     KLeft       -> continue $ step Left g
     KRight      -> continue $ step Right  g
     --Input and remove numbers
-    (KChar '1') -> continue $ insert (Input 1) (focusedCell g) g
-    (KChar '2') -> continue $ insert (Input 2) (focusedCell g) g
-    (KChar '3') -> continue $ insert (Input 3) (focusedCell g) g
-    (KChar '4') -> continue $ insert (Input 4) (focusedCell g) g
-    (KChar '5') -> continue $ insert (Input 5) (focusedCell g) g
-    (KChar '6') -> continue $ insert (Input 6) (focusedCell g) g
-    (KChar '7') -> continue $ insert (Input 7) (focusedCell g) g
-    (KChar '8') -> continue $ insert (Input 8) (focusedCell g) g
-    (KChar '9') -> continue $ insert (Input 9) (focusedCell g) g
+    (KChar '1') -> continue $ insert (Input 1 (focusedCell g)) (focusedCell g) g
+    (KChar '2') -> continue $ insert (Input 2 (focusedCell g)) (focusedCell g) g
+    (KChar '3') -> continue $ insert (Input 3 (focusedCell g)) (focusedCell g) g
+    (KChar '4') -> continue $ insert (Input 4 (focusedCell g)) (focusedCell g) g
+    (KChar '5') -> continue $ insert (Input 5 (focusedCell g)) (focusedCell g) g
+    (KChar '6') -> continue $ insert (Input 6 (focusedCell g)) (focusedCell g) g
+    (KChar '7') -> continue $ insert (Input 7 (focusedCell g)) (focusedCell g) g
+    (KChar '8') -> continue $ insert (Input 8 (focusedCell g)) (focusedCell g) g
+    (KChar '9') -> continue $ insert (Input 9 (focusedCell g)) (focusedCell g) g
     KDel        -> continue $ delete (focusedCell g) g
     KBS         -> continue $ delete (focusedCell g) g
      --Global events
@@ -84,12 +85,22 @@ drawGame g =
      [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
 --Cell widget
-drawCell :: Cell -> Widget Name
-drawCell cell = 
-    case cell of
-    Lock x      ->  withAttr lockAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
-    Input x     ->  withAttr inputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
-    Empty       ->  str "       " <=> str "     " <=> str "       " 
+drawCell :: Cell -> Game -> Widget Name
+drawCell (Empty coord) game = 
+    if coord == focusedCell game then        
+        withAttr focusedAttr $ str "       " <=> str "     " <=> str "       " 
+    else
+        str "       " <=> str "     " <=> str "       " 
+drawCell (Lock x coord) game = 
+    if coord == focusedCell game then 
+        withAttr focusedAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      "     
+    else
+        withAttr lockAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+drawCell (Input x coord) game = 
+    if coord == focusedCell game then 
+        withAttr focusedAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+    else
+        withAttr inputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
 
 --Makes a widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
@@ -99,7 +110,7 @@ drawBox n g =
     $ surroundingBorder False 
     $ table 
     $ chunksOf 3
-    $ map drawCell
+    $ map (`drawCell` g)
     $ toList 
     $ box n g
 

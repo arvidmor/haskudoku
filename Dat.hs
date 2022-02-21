@@ -11,9 +11,9 @@ Empty is an empty cell
     INVARIANT:  0 < x <= 10 where x == (Input x) || (Lock x)
 -}
 
-data Cell = Lock Int    |
-            Input Int   |
-            Empty       deriving (Eq, Show) --Cell has a locked value (predefined), input value (input by user) or is empty
+data Cell = Lock Int Coord    |
+            Input Int Coord   |
+            Empty Coord      deriving (Eq, Show) --Cell has a locked value (predefined), input value (input by user) or is empty
 
 type Grid       = Matrix Cell   --Matrix of cell values
 
@@ -32,7 +32,7 @@ data Game = Game {
 } deriving Show
 
 type Name = ()
-newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty)
+newSudokuMatrix = matrix 9 9 (\(r, c) -> (Empty (r, c)))
 
 
 --GRID OPERATIONS
@@ -45,9 +45,9 @@ Checks if a cell in a grid is Locked
 isLocked :: Grid -> Coord -> Bool
 isLocked g (r, c) = let cell = getElem r c g in
     case cell of 
-        (Lock _)  -> True
-        Input _   -> False
-        Empty     -> False
+        (Lock _ _)  -> True
+        Input _ _  -> False
+        Empty _    -> False
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
@@ -55,11 +55,11 @@ Inserts i into grid at row number r and column number c if the value is within t
     EXAMPLES: -
 -}
 insert :: Cell -> Coord -> Game -> Game
-insert Empty (r, c) game            = game {grid = setElem Empty (r, c) (grid game)}
-insert (Lock i) (r, c) game         = game {grid = setElem (Lock i) (r, c) (grid game)}
-insert (Input i) (r, c) game 
+insert (Empty _) (r, c) game            = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
+insert (Lock i _) (r, c) game           = game {grid = setElem (Lock i (r, c)) (r, c) (grid game)}
+insert (Input i _) (r, c) game 
     | isLocked (grid game) (r, c)   = game
-    | otherwise                     = game {grid = setElem (Input i) (r, c) (grid game)}
+    | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
 
 
 {- delete (r, c) grid
@@ -69,7 +69,7 @@ Deletes a value from position (r, c) in grid
 -}
 delete ::  Coord -> Game -> Game
 delete (r, c) game
-    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = game { grid = setElem Empty (r, c) (grid game)}
+    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = game { grid = setElem (Empty (r, c)) (r, c) (grid game)}
     | otherwise                            = game
 
 {- legalInSubGrid (Input i) lst grid
@@ -80,10 +80,10 @@ Checks if i exists inside grid's subgrid lst
 -}
 legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
-legalInSubGrid Empty _ _                                  = True
-legalInSubGrid (Input i) lst@(x:xs) game
+legalInSubGrid (Empty _) _ _                                  = True
+legalInSubGrid (Input i coord) lst@(x:xs) game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
-    | otherwise                                           = legalInSubGrid (Input i) xs game
+    | otherwise                                           = legalInSubGrid (Input i coord) xs game
 
 {- listSubGrid (r, c)
 Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
@@ -115,8 +115,8 @@ Checks if i exists on the row r.
     EXAMPLES: -
 -}
 legalInRow :: Cell -> Coord -> Game -> Bool
-legalInRow Empty _ _             = True
-legalInRow (Input i) (r, c) game = checkRow (Input i) r 1 game
+legalInRow (Empty _) _ _             = True
+legalInRow (Input i coord) (r, c) game = checkRow (Input i coord) r 1 game
 
 {- checkRow (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the row x.
@@ -125,16 +125,16 @@ Checks if (Input i) is equal to any of the cells on the row x.
     EXAMPLES: -
 -}
 checkRow :: Cell -> Int -> Int -> Game -> Bool
-checkRow (Input i) x acc game
+checkRow (Input i coord) x acc game
     | 9 < acc                                         = True
-    | getElem x acc (grid game) == Empty              = checkRow (Input i) x (acc + 1) game
+    | getElem x acc (grid game) == Empty coord              = checkRow (Input i coord) x (acc + 1) game
     | i == getIntFromCell (getElem x acc (grid game)) = False
-    | otherwise                                       = checkRow (Input i) x (acc + 1) game
+    | otherwise                                       = checkRow (Input i coord) x (acc + 1) game
 
 --Gets the int from the cell data-type.
 getIntFromCell :: Cell -> Int
-getIntFromCell (Input i) = i
-getIntFromCell (Lock i)  = i
+getIntFromCell (Input i _) = i
+getIntFromCell (Lock i _)  = i
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
@@ -142,8 +142,8 @@ Checks if i exists on the column c.
     EXAMPLES: -
 -}
 legalInCol :: Cell -> Coord -> Game -> Bool
-legalInCol Empty _ _             = True
-legalInCol (Input i) (r, c) game = checkCol (Input i) c 1 game
+legalInCol (Empty _) _ _             = True
+legalInCol (Input i coord) (r, c) game = checkCol (Input i coord) c 1 game
 
 {- checkCol (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the col x.
@@ -152,11 +152,11 @@ Checks if (Input i) is equal to any of the cells on the col x.
     EXAMPLES: -
 -}
 checkCol :: Cell -> Int -> Int -> Game -> Bool
-checkCol (Input i) x acc game
+checkCol (Input i coord) x acc game
     | 9 < acc                                         = True
-    | getElem acc x (grid game) == Empty              = checkCol (Input i) x (acc + 1) game
+    | getElem acc x (grid game) == Empty coord        = checkCol (Input i coord) x (acc + 1) game
     | i == getIntFromCell (getElem acc x (grid game)) = False
-    | otherwise                                       = checkCol (Input i) x (acc + 1) game
+    | otherwise                                       = checkCol (Input i coord) x (acc + 1) game
 
 {- step dir game
 Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
@@ -207,8 +207,9 @@ Converts a list of cells in string-format to a Matrix cell.
     RETURNS: the string str as a Matrix Cell
     EXAMPLES: -
 -}
-stringToMatrix :: String -> Grid
-stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
+
+-- stringToMatrix :: String -> Grid
+-- stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
 
 {- stringToMatrixAux str
 Creates a list of cells from a string containing key-words of type cell.
@@ -216,6 +217,7 @@ Creates a list of cells from a string containing key-words of type cell.
     VARIANT: amount of words in str (fix this variant)
     EXAMPLES: -
 -}
+{-
 stringToMatrixAux :: String -> [Cell]
 stringToMatrixAux "" = []
 stringToMatrixAux str@(x:xs)
@@ -224,7 +226,7 @@ stringToMatrixAux str@(x:xs)
     | [x] == "L"                             = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
     | [x] == "I"                             = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
     | otherwise                              = [] ++ stringToMatrixAux (shortenString (x:xs))
-
+-}
 {- getNr str acc lim
 Gets a specific character in a string and returns it as an int.
     RETURNS: the character indexed (lim - acc) in str as an int
