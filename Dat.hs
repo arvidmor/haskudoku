@@ -204,7 +204,7 @@ Converts a list of cells in string-format to a Matrix cell.
     RETURNS: the string str as a Matrix Cell
     EXAMPLES: -
 -}
-stringToMatrix :: String -> Matrix Cell
+stringToMatrix :: String -> Grid
 stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
 
 {- stringToMatrixAux str

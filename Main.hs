@@ -9,4 +9,4 @@ import Brick
 
 
 main :: IO Game
-main = defaultMain app mkGame  
+main = defaultMain app mkGame
