@@ -68,6 +68,8 @@ handleEvent g (VtyEvent (EvKey key [])) =
     (KChar '7') -> continue $ insert (Input 7) (focusedCell g) g
     (KChar '8') -> continue $ insert (Input 8) (focusedCell g) g
     (KChar '9') -> continue $ insert (Input 9) (focusedCell g) g
+    KDel        -> continue $ delete (focusedCell g) g
+    KBS         -> continue $ delete (focusedCell g) g
      --Global events
     (KChar 'q') -> halt g
     _           -> continue g
@@ -115,4 +117,4 @@ drawHelp :: Widget Name
 drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q"
+    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
