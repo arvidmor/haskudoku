@@ -15,12 +15,9 @@ import qualified Brick as Brick.Types
 
 import Data.Matrix
 import Data.List.Split (chunksOf)
-import Data.Char (digitToInt)
 import Prelude hiding (Right, Left)
-import Data.Function hiding (on)
 
 import Brick.Widgets.Table
-import Brick.Widgets.Table (setDefaultRowAlignment)
 import Brick.Widgets.List (list, renderList)
 import Data.List (intersperse, intercalate)
 
@@ -34,8 +31,8 @@ mkGame = insert (Input 6) (1, 2) $ insert (Lock 5) (1,1) Game {
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 attributes = attrMap defAttr [
-      (lockAttr, red `on` black)
-    , (inputAttr, white `on` black)
+      (lockAttr, white `on` black)
+    , (inputAttr, brightBlack   `on` black)
     ]
 
 app :: App Game a Name
@@ -60,7 +57,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     KDown       -> continue $ step Down g
     KLeft       -> continue $ step Left  g
     KRight      -> continue $ step Right  g
-    --Input numbers
+    --Input and remove numbers
     (KChar '1') -> continue $ insert (Input 1) (focusedCell g) g
     (KChar '2') -> continue $ insert (Input 2) (focusedCell g) g
     (KChar '3') -> continue $ insert (Input 3) (focusedCell g) g
@@ -76,7 +73,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     (KChar 'q') -> halt g
     _           -> continue g
 --Resize
-handleEvent g (VtyEvent (EvResize _ _ ))            = continue g
+handleEvent g (VtyEvent (EvResize _ _ )) = continue g
 
 --DRAWING FUNCTIONS
 --Composite of all widgets
@@ -90,13 +87,14 @@ drawCell cell =
     case cell of
     Lock x      ->  withAttr lockAttr  $ str (" " ++ show x ++ " ")
     Input x     ->  withAttr inputAttr $ str (" " ++ show x ++ " ")
-    Empty       ->  str " E "
+    Empty       ->  str "   "
 
---List all cell widgets in chunks of 9
+--Makes a widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
     withBorderStyle unicode 
     $ renderTable
+    $ surroundingBorder False 
     $ table 
     $ chunksOf 3
     $ map drawCell
@@ -104,10 +102,21 @@ drawBox n g =
     $ box n g
 
 drawGrid :: Game -> Widget Name
-drawGrid g = joinBorders $
-             (drawBox 1 g <+> drawBox 2 g <+> drawBox 3 g) 
-         <=> (drawBox 4 g <+> drawBox 5 g <+> drawBox 6 g)
-         <=> (drawBox 7 g <+> drawBox 8 g <+> drawBox 9 g)
+drawGrid g = withBorderStyle unicodeBold 
+        $ border
+        $ joinBorders 
+        $ vBox [
+          hBox [drawBox 1 g, verticalBorder, drawBox 2 g, verticalBorder, drawBox 3 g]
+        , horizontalBorder
+        , hBox [drawBox 4 g, verticalBorder, drawBox 5 g, verticalBorder,  drawBox 6 g]
+        , horizontalBorder
+        , hBox [drawBox 7 g, verticalBorder, drawBox 8 g, verticalBorder, drawBox 9 g]
+         ]
+        where
+    verticalBorder = setAvailableSize (1, 5) (withBorderStyle unicodeBold vBorder)
+    horizontalBorder = setAvailableSize (35, 1) (withBorderStyle unicodeBold (hBorderWithLabel (str "━━━┿━━━┿━━━╋━━━┿━━━┿━━━╋━━━┿━━━┿━━━")))
+    -- ━
+    -- ┼
 --Debug widget
 drawDebug :: Game  -> Widget Name
 drawDebug g = withBorderStyle unicodeRounded
@@ -123,6 +132,11 @@ drawHelp = withBorderStyle unicodeRounded
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
 
+{- box n game
+Creates a submatrix corresponding to the n'th box of the sudoku-grid
+    RETURNS:    the n'th box of the grid in the current state game
+    EXAMPLES:   
+-}
 box :: Int -> Game -> Matrix Cell
 box n game = case n of 
     1   -> submatrix 1 3 1 3 (grid game)
