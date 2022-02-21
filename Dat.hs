@@ -78,12 +78,12 @@ Checks if i exists inside grid's subgrid lst
     VARIANT: length lst
     EXAMPLES: -
 -}
-legalInSubGrid :: Cell -> [Coord] -> Grid -> Bool
-legalInSubGrid _ [] _                   = True
-legalInSubGrid Empty _ _                = True
-legalInSubGrid (Input i) lst@(x:xs) grid
-    | Input i == uncurry getElem x grid = False
-    | otherwise                         = legalInSubGrid (Input i) xs grid
+legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
+legalInSubGrid _ [] _                          = True
+legalInSubGrid Empty _ _                       = True
+legalInSubGrid (Input i) lst@(x:xs) game
+    | i == getIntFromCell (uncurry getElem x (grid game)) = False
+    | otherwise                                = legalInSubGrid (Input i) xs game
 
 {- listSubGrid (r, c)
 Creates a list of every coordinate that exists in the same 3x3 sub-grid as (r, c)
@@ -114,9 +114,9 @@ Checks if i exists on the row r.
     RETURNS: True if i doesn't exist on r, False if i does exist on r.
     EXAMPLES: -
 -}
-legalInRow :: Cell -> Coord -> Grid -> Bool
-legalInRow Empty _ _             = True
-legalInRow (Input i) (r, c) grid = checkRow (Input i) r 1 grid
+legalInRow :: Cell -> Coord -> Game -> Bool
+legalInRow Empty _ _                    = True
+legalInRow (Input i) (r, c) game = checkRow (Input i) r 1 game
 
 {- checkRow (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the row x.
@@ -124,21 +124,26 @@ Checks if (Input i) is equal to any of the cells on the row x.
     VARIANT: acc
     EXAMPLES: -
 -}
-checkRow :: Cell -> Int -> Int -> Grid -> Bool
-checkRow (Input i) x acc grid
-    | 9 < acc                         = True
-    | getElem x acc grid == Empty     = checkRow (Input i) x (acc + 1) grid
-    | (Input i) == getElem x acc grid = False
-    | otherwise                       = checkRow (Input i) x (acc + 1) grid
+checkRow :: Cell -> Int -> Int -> Game -> Bool
+checkRow (Input i) x acc game
+    | 9 < acc                                = True
+    | getElem x acc (grid game) == Empty     = checkRow (Input i) x (acc + 1) game
+    | i == getIntFromCell (getElem x acc (grid game)) = False
+    | otherwise                              = checkRow (Input i) x (acc + 1) game
+
+--Gets the int from the cell data-type.
+getIntFromCell :: Cell -> Int
+getIntFromCell (Input i) = i
+getIntFromCell (Lock i) = i
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
     RETURNS: True if i doesn't exist on c, False if i does exist on c.
     EXAMPLES: -
 -}
-legalInCol :: Cell -> Coord -> Grid -> Bool
-legalInCol Empty _ _             = True
-legalInCol (Input i) (r, c) grid = checkCol (Input i) c 1 grid
+legalInCol :: Cell -> Coord -> Game -> Bool
+legalInCol Empty _ _                    = True
+legalInCol (Input i) (r, c) game = checkCol (Input i) c 1 game
 
 {- checkCol (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the col x.
@@ -146,13 +151,12 @@ Checks if (Input i) is equal to any of the cells on the col x.
     VARIANT: acc
     EXAMPLES: -
 -}
-checkCol :: Cell -> Int -> Int -> Grid -> Bool
-checkCol (Input i) x acc grid
-    | 9 < acc                         = True
-    | getElem acc x grid == Empty     = checkCol (Input i) x (acc + 1) grid
-    | (Input i) == getElem acc x grid = False
-    | otherwise                       = checkCol (Input i) x (acc + 1) grid
-
+checkCol :: Cell -> Int -> Int -> Game -> Bool
+checkCol (Input i) x acc game
+    | 9 < acc                                  = True
+    | getElem acc x (grid game) == Empty              = checkCol (Input i) x (acc + 1) game
+    | i == getIntFromCell (getElem acc x (grid game)) = False
+    | otherwise                                = checkCol (Input i) x (acc + 1) game
 
 {- step dir game
 Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
@@ -164,7 +168,6 @@ returns the corresponding coord at the opposite side of a 9x9 Matrix.
                 step Left (2, 7)    == (1, 7)
                 step Down (4, 4)    == (5, 4)
                 step Right (8, 9)   == (8, 1)
-                
 -}
 step :: Dat.Direction -> Game -> Game
 step direction game = 
