@@ -20,3 +20,9 @@ saveGrid game filename = writeFile filename (exportGrid game)
 
 loadGrid :: FilePath -> IO Game
 loadGrid filename = importGrid <$> readFile filename
+
+saveFileLoop :: Game -> IO ()
+saveFileLoop game = do 
+    putStr "Filename: "
+    fileName <- getLine
+    saveGrid game ("Puzzles/"++fileName)
