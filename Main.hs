@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Dat
+import Types
 import UI
 import FileIO
 import Brick

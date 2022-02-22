@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module UI where
-import Dat
+import Solver
+import Types
+import Grid
 
 import Graphics.Vty hiding (Input)
 import qualified Graphics.Vty
@@ -77,7 +79,7 @@ handleEvent g (VtyEvent (EvKey key [])) =
     KUp         -> continue $ step Up g
     KDown       -> continue $ step Down g
     KLeft       -> continue $ step Left g
-    KRight      -> continue $ step Right  g
+    KRight      -> continue $ step Right g
     --Input and remove numbers
     (KChar '1') -> continue $ insert (Input 1 (focusedCell g)) (focusedCell g) g
     (KChar '2') -> continue $ insert (Input 2 (focusedCell g)) (focusedCell g) g

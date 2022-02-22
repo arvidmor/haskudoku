@@ -1,6 +1,7 @@
 module FileIO where
 
-import Dat
+import Grid
+import Types
 import UI
 import Data.Matrix (fromLists, toLists)
 import System.IO
