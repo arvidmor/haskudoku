@@ -40,11 +40,13 @@ mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 focusedAttr = attrName "Focused"
+illegalAttr = attrName "Illegal"
 focusedInputAttr = attrName "FocusedInput"
 attributes = attrMap defAttr [
       (lockAttr, fg white)
     , (inputAttr, fg brightBlue )
     , (focusedAttr, bg brightBlack)
+    , (illegalAttr, brightBlue `on` brightRed)
     , (focusedInputAttr, brightBlue `on` brightBlack)
     ]
 
@@ -142,12 +144,18 @@ drawCell cell game =
             where
                 filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
 
-        (Input x coord) ->  
-            if coord == focusedCell game then 
-                withAttr focusedInputAttr filledCell
+        (Input x coord) ->
+            if (legalInSubGrid cell (listSubGrid coord) game) && (legalInRow cell game) && (legalInCol cell game) then
+                if coord == focusedCell game then
+                    withAttr focusedInputAttr filledCell
+                else
+                    withAttr inputAttr filledCell
             else
-                withAttr inputAttr filledCell
-            where 
+                if coord == focusedCell game then
+                    withAttr focusedInputAttr filledCell
+                else
+                    withAttr illegalAttr filledCell
+            where
                 filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
 
         (Empty coord)   ->
