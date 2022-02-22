@@ -17,10 +17,11 @@ main = do
         "1" -> do 
             putStr "Filename: "
             file <- getLine
-            endGame <- defaultMain app (importGrid file)
+            gameState <- loadGrid file
+            endGame <- defaultMain app gameState
             return ()
         "2" -> do 
-            endGame <- defaultMain editorApp emptyGame 
+            endGame <- defaultMain editorApp emptyGame
             return ()
         "3" -> do
             putStrLn $ unlines
