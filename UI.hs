@@ -32,10 +32,12 @@ mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 focusedAttr = attrName "Focused"
+focusedInputAttr = attrName "FocusedInput"
 attributes = attrMap defAttr [
       (lockAttr, fg white)
     , (inputAttr, fg brightBlue )
     , (focusedAttr, bg brightBlack)
+    , (focusedInputAttr, brightBlue `on` brightBlack)
     ]
 
 app :: App Game a Name
@@ -84,9 +86,10 @@ drawGame :: Game -> [Widget Name]
 drawGame g =
      [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
---Cell widget
+--Cell widget. Draws focused cell with a "lightBlack" background color
 drawCell :: Cell -> Game -> Widget Name
 drawCell (Empty coord) game = 
+    --
     if coord == focusedCell game then        
         withAttr focusedAttr $ str "       " <=> str "     " <=> str "       " 
     else
@@ -98,7 +101,7 @@ drawCell (Lock x coord) game =
         withAttr lockAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
 drawCell (Input x coord) game = 
     if coord == focusedCell game then 
-        withAttr focusedAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+        withAttr focusedInputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
     else
         withAttr inputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
 
@@ -146,20 +149,3 @@ drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
-
-{- box n game
-Creates a submatrix corresponding to the n'th box of the sudoku-grid
-    RETURNS:    the n'th box of the grid in the current state game
-    EXAMPLES:   
--}
-box :: Int -> Game -> Matrix Cell
-box n game = case n of 
-    1   -> submatrix 1 3 1 3 (grid game)
-    2   -> submatrix 1 3 4 6 (grid game)
-    3   -> submatrix 1 3 7 9 (grid game)
-    4   -> submatrix 4 6 1 3 (grid game)
-    5   -> submatrix 4 6 4 6 (grid game)
-    6   -> submatrix 4 6 7 9 (grid game)
-    7   -> submatrix 7 9 1 3 (grid game)
-    8   -> submatrix 7 9 4 6 (grid game)
-    9   -> submatrix 7 9 7 9 (grid game)
