@@ -1,7 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module UI where
 import Dat
-import qualified Dat
 
 import Graphics.Vty hiding (Input)
 import qualified Graphics.Vty
@@ -22,6 +21,13 @@ import Brick.Widgets.Table
 import Brick.Widgets.List (list, renderList)
 import Data.List (intersperse, intercalate)
 
+emptyGame :: Game
+emptyGame = Game {
+    grid = newSudokuMatrix,
+    focusedCell = (5, 5),
+    complete = False
+}
+
 mkGame :: Game
 mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
     grid = newSudokuMatrix,
@@ -40,13 +46,23 @@ attributes = attrMap defAttr [
     , (focusedInputAttr, brightBlue `on` brightBlack)
     ]
 
+editorApp :: App Game a Name
+editorApp = App {
+    appDraw         = drawGame
+  , appChooseCursor = neverShowCursor
+  , appHandleEvent  = handleEventEditor
+  , appStartEvent   = return
+  , appAttrMap      = const attributes
+}
+
 app :: App Game a Name
-app = App { appDraw         = drawGame
-          , appChooseCursor = showFirstCursor
-          , appHandleEvent  = handleEvent
-          , appStartEvent   = return
-          , appAttrMap      = const attributes
-          }
+app = App { 
+    appDraw         = drawGame
+  , appChooseCursor = neverShowCursor
+  , appHandleEvent  = handleEvent
+  , appStartEvent   = return
+  , appAttrMap      = const attributes
+}
 
 --EVENT HANDLING
 {-
@@ -79,6 +95,32 @@ handleEvent g (VtyEvent (EvKey key [])) =
     _           -> continue g
 --Resize
 handleEvent g (VtyEvent (EvResize _ _ )) = continue g
+
+handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
+handleEventEditor g (VtyEvent (EvKey key [])) =
+    case key of
+    --Navigation
+    KUp         -> continue $ step Up g
+    KDown       -> continue $ step Down g
+    KLeft       -> continue $ step Left g
+    KRight      -> continue $ step Right  g
+    --Input and remove numbers
+    (KChar '1') -> continue $ insert (Lock 1 (focusedCell g)) (focusedCell g) g
+    (KChar '2') -> continue $ insert (Lock 2 (focusedCell g)) (focusedCell g) g
+    (KChar '3') -> continue $ insert (Lock 3 (focusedCell g)) (focusedCell g) g
+    (KChar '4') -> continue $ insert (Lock 4 (focusedCell g)) (focusedCell g) g
+    (KChar '5') -> continue $ insert (Lock 5 (focusedCell g)) (focusedCell g) g
+    (KChar '6') -> continue $ insert (Lock 6 (focusedCell g)) (focusedCell g) g
+    (KChar '7') -> continue $ insert (Lock 7 (focusedCell g)) (focusedCell g) g
+    (KChar '8') -> continue $ insert (Lock 8 (focusedCell g)) (focusedCell g) g
+    (KChar '9') -> continue $ insert (Lock 9 (focusedCell g)) (focusedCell g) g
+    KDel        -> continue $ deleteLocked (focusedCell g) g
+    KBS         -> continue $ deleteLocked (focusedCell g) g
+     --Global events
+    (KChar 'q') -> halt g
+    _           -> continue g
+    --Resize
+handleEventEditor g (VtyEvent (EvResize _ _ )) = continue g
 
 --DRAWING FUNCTIONS
 --Composite of all widgets
