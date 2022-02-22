@@ -17,7 +17,7 @@ main = do
         "1" -> do 
             putStr "Filename: "
             file <- getLine
-            gameState <- loadGrid file
+            gameState <- loadGrid ("Puzzles/"++file)
             endGame <- defaultMain app gameState
             return ()
         "2" -> do 
