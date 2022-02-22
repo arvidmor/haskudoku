@@ -13,9 +13,9 @@ Empty is an empty cell
 
 data Cell = Lock Int Coord    |
             Input Int Coord   |
-            Empty Coord      deriving (Eq, Show) --Cell has a locked value (predefined), input value (input by user) or is empty
+            Empty Coord      deriving (Eq, Show, Read) --Cell has a locked value (predefined), input value (input by user) or is empty
 
-type Grid       = Matrix Cell   --Matrix of cell values
+type Grid       = Matrix Cell --Matrix of cell values
 
 type Coord      = (Int, Int)    --(Row index, Column index)
 
@@ -71,6 +71,10 @@ delete ::  Coord -> Game -> Game
 delete (r, c) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
+
+deleteLocked ::  Coord -> Game -> Game
+deleteLocked (r, c) game
+    = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
@@ -241,16 +245,16 @@ Creates a list of cells from a string containing key-words of type cell.
     VARIANT: amount of words in str (fix this variant)
     EXAMPLES: -
 -}
-{-
-stringToMatrixAux :: String -> [Cell]
-stringToMatrixAux "" = []
-stringToMatrixAux str@(x:xs)
-    | [x] == "[" || [x] == "]" || [x] == "," = stringToMatrixAux xs
-    | [x] == "E"                             = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
-    | [x] == "L"                             = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
-    | [x] == "I"                             = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
-    | otherwise                              = [] ++ stringToMatrixAux (shortenString (x:xs))
--}
+
+-- stringToMatrixAux :: String -> [Cell]
+-- stringToMatrixAux "" = []
+-- stringToMatrixAux str@(x:xs)
+--     | [x] == "[" || [x] == "]" || [x] == "," = stringToMatrixAux xs
+--     | [x] == "E"                             = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
+--     | [x] == "L"                             = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
+--     | [x] == "I"                             = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
+--     | otherwise                              = [] ++ stringToMatrixAux (shortenString (x:xs))
+
 {- getNr str acc lim
 Gets a specific character in a string and returns it as an int.
     RETURNS: the character indexed (lim - acc) in str as an int
