@@ -22,6 +22,7 @@ main = do
             return ()
         "2" -> do 
             endGame <- defaultMain editorApp emptyGame
+            saveFileLoop endGame
             return ()
         "3" -> do
             putStrLn $ unlines
