@@ -84,28 +84,37 @@ handleEvent g (VtyEvent (EvResize _ _ )) = continue g
 --Composite of all widgets
 drawGame :: Game -> [Widget Name]
 drawGame g =
-     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
+    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
 --Cell widget. Draws focused cell with a "lightBlack" background color
 drawCell :: Cell -> Game -> Widget Name
-drawCell (Empty coord) game = 
-    --
-    if coord == focusedCell game then        
-        withAttr focusedAttr $ str "       " <=> str "     " <=> str "       " 
-    else
-        str "       " <=> str "     " <=> str "       " 
-drawCell (Lock x coord) game = 
-    if coord == focusedCell game then 
-        withAttr focusedAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      "     
-    else
-        withAttr lockAttr  $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
-drawCell (Input x coord) game = 
-    if coord == focusedCell game then 
-        withAttr focusedInputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
-    else
-        withAttr inputAttr $ str "      " <=> str ("   " ++ show x ++ "   ") <=> str "      " 
+drawCell cell game = 
+    case cell of 
+        (Lock x coord)  -> 
+            if coord == focusedCell game then
+                withAttr focusedAttr filledCell
+            else
+                withAttr lockAttr filledCell
+            where
+                filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
 
---Makes a widget from the cells in box n of game state
+        (Input x coord) ->  
+            if coord == focusedCell game then 
+                withAttr focusedInputAttr filledCell
+            else
+                withAttr inputAttr filledCell
+            where 
+                filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
+
+        (Empty coord)   ->
+            if coord == focusedCell game then        
+                withAttr focusedAttr emptyCell
+            else
+                emptyCell
+            where 
+                emptyCell  = str "       " <=> str "       " <=> str "       "
+
+--Makes a Table widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
     withBorderStyle unicode 
