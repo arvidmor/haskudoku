@@ -1,5 +1,5 @@
 module Dat where
-import Brick hiding (Down, Up)
+import Brick hiding (Down, Up, Direction)
 import Data.Matrix
 import Prelude hiding (Right, Left)
 import System.IO
@@ -32,7 +32,7 @@ data Game = Game {
 } deriving Show
 
 type Name = ()
-newSudokuMatrix = matrix 9 9 (\(r, c) -> (Empty (r, c)))
+newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
 
 
 --GRID OPERATIONS
@@ -69,8 +69,8 @@ Deletes a value from position (r, c) in grid
 -}
 delete ::  Coord -> Game -> Game
 delete (r, c) game
-    | 1 <= r && r <= 9 && 1 <= c && c <= 9 = game { grid = setElem (Empty (r, c)) (r, c) (grid game)}
-    | otherwise                            = game
+    | isLocked (grid game) (r, c)   = game
+    | otherwise                     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
@@ -80,7 +80,7 @@ Checks if i exists inside grid's subgrid lst
 -}
 legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
-legalInSubGrid (Empty _) _ _                                  = True
+legalInSubGrid (Empty _) _ _                              = True
 legalInSubGrid (Input i coord) lst@(x:xs) game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
     | otherwise                                           = legalInSubGrid (Input i coord) xs game
@@ -114,9 +114,9 @@ Checks if i exists on the row r.
     RETURNS: True if i doesn't exist on r, False if i does exist on r.
     EXAMPLES: -
 -}
-legalInRow :: Cell -> Coord -> Game -> Bool
-legalInRow (Empty _) _ _             = True
-legalInRow (Input i coord) (r, c) game = checkRow (Input i coord) r 1 game
+legalInRow :: Cell -> Game -> Bool
+legalInRow (Empty _) _           = True
+legalInRow (Input i (r, c)) game = checkRow (Input i (r, c)) 1 game
 
 {- checkRow (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the row x.
@@ -124,26 +124,28 @@ Checks if (Input i) is equal to any of the cells on the row x.
     VARIANT: acc
     EXAMPLES: -
 -}
-checkRow :: Cell -> Int -> Int -> Game -> Bool
-checkRow (Input i coord) x acc game
+checkRow :: Cell -> Int -> Game -> Bool
+checkRow (Input i (r, c)) acc game
     | 9 < acc                                         = True
-    | getElem x acc (grid game) == Empty coord              = checkRow (Input i coord) x (acc + 1) game
-    | i == getIntFromCell (getElem x acc (grid game)) = False
-    | otherwise                                       = checkRow (Input i coord) x (acc + 1) game
+    | getElem r acc (grid game) == Empty (r, c)       = checkRow (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem r acc (grid game)) = False
+    | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
 
 --Gets the int from the cell data-type.
+--RETURNS 0 IF THE CELL IS EMPTY
 getIntFromCell :: Cell -> Int
-getIntFromCell (Input i _) = i
-getIntFromCell (Lock i _)  = i
+getIntFromCell (Input i _)  = i
+getIntFromCell (Lock i _)   = i
+getIntFromCell (Empty _)    = 0
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
     RETURNS: True if i doesn't exist on c, False if i does exist on c.
     EXAMPLES: -
 -}
-legalInCol :: Cell -> Coord -> Game -> Bool
-legalInCol (Empty _) _ _             = True
-legalInCol (Input i coord) (r, c) game = checkCol (Input i coord) c 1 game
+legalInCol :: Cell -> Game -> Bool
+legalInCol (Empty _) _           = True
+legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 
 {- checkCol (Input i) x acc grid
 Checks if (Input i) is equal to any of the cells on the col x.
@@ -151,12 +153,34 @@ Checks if (Input i) is equal to any of the cells on the col x.
     VARIANT: acc
     EXAMPLES: -
 -}
-checkCol :: Cell -> Int -> Int -> Game -> Bool
-checkCol (Input i coord) x acc game
+checkCol :: Cell -> Int -> Game -> Bool
+checkCol (Input i (r, c)) acc game
     | 9 < acc                                         = True
-    | getElem acc x (grid game) == Empty coord        = checkCol (Input i coord) x (acc + 1) game
-    | i == getIntFromCell (getElem acc x (grid game)) = False
-    | otherwise                                       = checkCol (Input i coord) x (acc + 1) game
+    | getElem acc c (grid game) == Empty (acc, c)     = checkCol (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem acc c (grid game)) = False
+    | otherwise                                       = checkCol (Input i (r, c)) (acc + 1) game
+
+
+--legalInput :: Cell -> Game -> Bool
+--legalInput cell game = legalInCol cell game && legalInRow cell game && legalInSubGrid cell game
+
+{- box n game
+Creates a submatrix corresponding to the n'th box of the sudoku-grid
+    RETURNS:    the n'th box of the grid in the current state game
+    EXAMPLES:   
+-}
+box :: Int -> Game -> Matrix Cell
+box n game = 
+    case n of 
+    1   -> submatrix 1 3 1 3 (grid game)
+    2   -> submatrix 1 3 4 6 (grid game)
+    3   -> submatrix 1 3 7 9 (grid game)
+    4   -> submatrix 4 6 1 3 (grid game)
+    5   -> submatrix 4 6 4 6 (grid game)
+    6   -> submatrix 4 6 7 9 (grid game)
+    7   -> submatrix 7 9 1 3 (grid game)
+    8   -> submatrix 7 9 4 6 (grid game)
+    9   -> submatrix 7 9 7 9 (grid game)
 
 {- step dir game
 Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
@@ -169,7 +193,7 @@ returns the corresponding coord at the opposite side of a 9x9 Matrix.
                 step Down (4, 4)    == (5, 4)
                 step Right (8, 9)   == (8, 1)
 -}
-step :: Dat.Direction -> Game -> Game
+step :: Direction -> Game -> Game
 step direction game = 
     (\(r, c) -> game {focusedCell = (r, c)}) $ case (direction, (r, c)) of 
             (Up, (1, c))      -> (9, c)
