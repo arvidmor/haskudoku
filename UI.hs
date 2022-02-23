@@ -140,46 +140,39 @@ drawGame :: Game -> [Widget Name]
 drawGame g =
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
+
 legalInput :: Cell -> Game -> Bool
 legalInput cell game = legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
-
 
 
 hightlightCursor :: Cell -> Game -> Widget Name
 hightlightCursor cell game = let coord = getCoordFromCell cell in
         if coord == focusedCell game then
-                (\attr -> forceAttr attr (drawCell cell game))
-                (case cell of 
-                    (Input _ coord) -> focusedInputAttr
-                    (Lock _ coord)  -> focusedAttr
-                    (Note _ coord)  -> focusedNoteAttr
-                    (Empty coord)   -> focusedAttr)
+            (\attr -> forceAttr attr (drawCell cell game))
+            (case cell of 
+                (Input _ coord) -> focusedInputAttr
+                (Lock _ coord)  -> focusedAttr
+                (Note _ coord)  -> focusedNoteAttr
+                (Empty coord)   -> focusedAttr)
         else (\attr -> withAttr attr (drawCell cell game))
             (case cell of 
-            
                 (Input _ coord) -> inputAttr
                 (Lock _ coord)  -> lockAttr
                 (Note _ coord)  -> noteAttr
                 (Empty coord)   -> defaultAttr)
 
-
-
 --Cell widget. Draws focused cell with a "lightBlack" background color
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game = 
+    let x = getIntFromCell cell in
+    let filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       " in
     case cell of 
         (Lock x coord)  -> 
-                withAttr lockAttr $ str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
-        (Input x coord) ->
-            if legalInput cell game then
-                withAttr inputAttr filledCell
-            else
-                forceAttr illegalAttr filledCell
-            where
-                filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
-
-        (Empty coord)   ->
-                str "       " <=> str "       " <=> str "       "
+            filledCell
+        (Input x coord) ->  if not (legalInput cell game) then
+                                forceAttr illegalAttr filledCell
+                            else filledCell
+        (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
 --Makes a Table widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
@@ -217,7 +210,7 @@ drawDebug g = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Debug")
     $ vLimitPercent 50
     $ padAll 1
-    $ str $ "Cursor pos: " ++ show (focusedCell g)
+    $ str $ "Cursor position: " ++ show (focusedCell g)
 
 --Info widget
 drawHelp :: Widget Name
