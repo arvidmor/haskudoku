@@ -4,6 +4,7 @@ import Data.Matrix
 
 data Cell = Lock Int Coord    |
             Input Int Coord   |
+            Note [Int]        |
             Empty Coord      deriving (Eq, Show, Read) --Cell has a locked value (predefined), input value (input by user) or is empty
 
 type Grid       = Matrix Cell --Matrix of cell values
