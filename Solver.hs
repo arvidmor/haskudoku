@@ -22,6 +22,7 @@ Checks if i exists inside grid's subgrid lst
 legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
 legalInSubGrid (Empty _) _ _                              = True
+legalInSubGrid (Note _ _) _ _                             = True
 legalInSubGrid (Input i coord) lst@(x:xs) game
     | coord == x = legalInSubGrid (Input i coord) xs game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
@@ -70,6 +71,7 @@ checkRow :: Cell -> Int -> Game -> Bool
 checkRow (Input i (r, c)) acc game
     | 9 < acc                                         = True
     | getElem r acc (grid game) == Empty (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
+--    | getElem r acc (grid game) == Note _ (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
     | (r, c) == getCoordFromCell (getElem r acc (grid game)) = checkRow (Input i (r, c)) (acc + 1) game
     | i == getIntFromCell (getElem r acc (grid game)) = False
     | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
@@ -79,7 +81,7 @@ Checks if i exists on the column c.
     RETURNS: True if i doesn't exist on c, False if i does exist on c.
     EXAMPLES: -
 -}
-legalInCol :: Cell -> Game -> Bool
+legalInCol :: Cell -> Game -> Bool -- Necessary to pattern match for Note here?
 legalInCol (Empty _) _           = True
 legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 
@@ -91,23 +93,26 @@ Checks if (Input i) is equal to any of the cells on the col x.
 -}
 checkCol :: Cell -> Int -> Game -> Bool
 checkCol (Input i (r, c)) acc game
-    | 9 < acc                                         = True
-    | getElem acc c (grid game) == Empty (acc, c)     = checkCol (Input i (r, c)) (acc + 1) game
-    | (r, c) == getCoordFromCell (getElem acc c (grid game)) = checkCol (Input i (r, c)) (acc + 1) game
-    | i == getIntFromCell (getElem acc c (grid game)) = False
-    | otherwise                                       = checkCol (Input i (r, c)) (acc + 1) game
+    | 9 < acc                                                   = True
+    | getElem acc c (grid game) == Empty (acc, c)               = checkCol (Input i (r, c)) (acc + 1) game
+--    | getElem acc c (grid game) == Note _ (acc, c)              = checkCol (Input i (r, c)) (acc + 1) game
+    | (r, c) == getCoordFromCell (getElem acc c (grid game))    = checkCol (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem acc c (grid game))           = False
+    | otherwise                                                 = checkCol (Input i (r, c)) (acc + 1) game
 
 --Gets the int from the cell data-type.
---RETURNS 0 IF THE CELL IS EMPTY
+--RETURNS 0 IF THE CELL IS EMPTY OR CONTAINS NOTES
 getIntFromCell :: Cell -> Int
 getIntFromCell (Input i _)  = i
 getIntFromCell (Lock i _)   = i
 getIntFromCell (Empty _)    = 0
+getIntFromCell (Note _ _)   = 0 -- Correct?
 
 getCoordFromCell :: Cell -> Coord
-getCoordFromCell (Input _ (r, c)) = (r, c)
-getCoordFromCell (Lock _ (r, c)) = (r, c)
-getCoordFromCell (Empty (r, c)) = (r, c)
+getCoordFromCell (Input _ (r, c))   = (r, c)
+getCoordFromCell (Lock _ (r, c))    = (r, c)
+getCoordFromCell (Empty (r, c))     = (r, c)
+getCoordFromCell (Note _ (r,c))     = (r, c)
 
 
 --legalInput :: Cell -> Game -> Bool
