@@ -11,6 +11,7 @@ import Brick hiding (Up, Down)
 import Brick.Widgets.Core
 import Brick.Widgets.Center
 import Brick.Widgets.Border
+import Brick.Widgets.Dialog
 import Brick.Widgets.Border.Style
 import qualified Brick as Brick.Types
 
@@ -57,6 +58,20 @@ attributes = attrMap defAttr [
     , (focusedNoteAttr, brightGreen `on` brightBlack)
     , (focusedIllegalAttr, brightBlue `on` magenta)
     ]
+
+menuAttributes = attrMap defAttr [
+    (buttonSelectedAttr, bg brightBlack)
+    , (buttonAttr , fg white)
+    ]   
+
+menuApp :: App (Dialog Int) a Name
+menuApp = App {
+    appDraw         = drawMenu
+  , appChooseCursor = showFirstCursor
+  , appHandleEvent  = handleEventMenu
+  , appStartEvent   = return 
+  , appAttrMap      = const menuAttributes
+}
 
 editorApp :: App Game a Name
 editorApp = App {
@@ -143,6 +158,16 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
     _           -> continue g
     --Resize
 handleEventEditor g (VtyEvent (EvResize _ _ )) = continue g
+
+handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
+handleEventMenu d (VtyEvent (EvKey key [])) = 
+    --Navigate and pick option
+    case key of 
+        (KChar 'q')     -> halt d
+        KEnter          -> halt d
+        _               -> continue =<< handleDialogEvent (EvKey key []) d
+--Resize
+handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
 
 --DRAWING FUNCTIONS
 --Composite of all widgets
@@ -238,3 +263,12 @@ drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
+
+drawMenu :: Dialog Int -> [Widget Name]
+drawMenu d = [renderDialog d (forceAttr buttonAttr (center $ str "Haskudoku"))]
+
+menuDialog :: Dialog Int
+menuDialog = dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 3)])) 100
+
+getChoice :: Dialog Int -> Maybe Int
+getChoice = dialogSelection 
