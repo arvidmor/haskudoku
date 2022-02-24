@@ -237,4 +237,4 @@ drawHelp :: Widget Name
 drawHelp = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
+    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace" 
