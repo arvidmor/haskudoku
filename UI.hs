@@ -262,7 +262,17 @@ drawHelp = withBorderStyle unicodeRounded
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace" 
 
 drawMenu :: Dialog Int -> [Widget Name]
-drawMenu d = [renderDialog d (center $ str "Haskudoku")]
+drawMenu d = [renderDialog d (center haskudokuLogo)]
+
+haskudokuLogo :: Widget Name
+haskudokuLogo = vBox [
+    str " _   _           _              _       _          "
+  , str "| | | |         | |            | |     | |         "
+  , str "| |_| | __ _ ___| | ___   _  __| | ___ | | ___   _ "
+  , str "|  _  |/ _` / __| |/ / | | |/ _` |/ _ \\| |/ / | | |"
+  , str "| | | | (_| \\__ \\   <| |_| | (_| | (_) |   <| |_| |"
+  , str "\\_| |_/\\__,_|___/_|\\_\\\\__,_|\\__,_|\\___/|_|\\_\\\\__,_|"
+    ]
 
 menuDialog :: Dialog Int
 menuDialog = dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
