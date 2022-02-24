@@ -123,60 +123,124 @@ getNotesFromCell cell =
         (Input _ _) -> []
         (Empty _)   -> []
 
+{- isCompleted game
+Checks if the game is finished or not
+    RETURNS: True if finished, otherwise False.
+    EXAMPLES: -
+-}
 isCompleted :: Game -> Bool
-isCompleted game = checkAllCols game && checkAllRows game {-&& checkAllSubGrids game-} && isFull game
+isCompleted game = checkAllCols game && checkAllRows game && checkAllSubGrids game && isFull game
 
+{- checkAllCols game
+Checks if the number in each cell is legal in all cols
+    RETURNS: True if all cells are legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllCols :: Game -> Bool
 checkAllCols game = checkAllColsAux game 1 1
 
+{- checkAllColsAux game row col
+Goes through every col and checks if every number is legal.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllColsAux :: Game -> Int -> Int -> Bool
 checkAllColsAux game row col
     | col == 10 = True
     | otherwise = legalCol game row col && checkAllColsAux game row (col + 1)
 
+{- legalCol game row col
+Checks if each cells number is legal in a specific col.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 legalCol :: Game -> Int -> Int -> Bool
 legalCol game row col
     | row == 10 = True
     | otherwise = legalInCol (getElem row col (grid game)) game && legalCol game (row + 1) col
 
+{- checkAllRows game
+Checks if the number in each cell is legal in all rows.
+    RETURNS: True if all cells are legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllRows :: Game -> Bool
 checkAllRows game = checkAllRowsAux game 1 1
 
+{- checkAllRowsAux game row col
+Goes through every row and checks if every number is legal.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllRowsAux :: Game -> Int -> Int -> Bool
 checkAllRowsAux game row col
     | row == 10 = True
     | otherwise = legalRow game row col && checkAllRowsAux game (row + 1) col
 
+{- legalRow game row col
+Checks if each cells number is legal in a specific row.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 legalRow :: Game -> Int -> Int -> Bool
 legalRow game row col
     | col == 10 = True
     | otherwise = legalInRow (getElem row col (grid game)) game && legalRow game row (col + 1)
 
+{- checkAllSubGrids game
+Checks if the number of each cell is legal in all sub-grids.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllSubGrids :: Game -> Bool
 checkAllSubGrids game = checkAllSubGridsAux game 1
 
+{- checkAllSubGridsAux game boxId
+Checks if all boxes are legal.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLES: -
+-}
 checkAllSubGridsAux :: Game -> Int -> Bool
 checkAllSubGridsAux game boxId
     | boxId == 10 = True
     | otherwise = checkSubGrid (toList (box boxId game)) && checkAllSubGridsAux game (boxId + 1)
 
+{- checkSubGrid lst
+Helper-function for checkAllSubGridsAux. Checks if each cell in a specific box is legal.
+    RETURNS: True if legal, otherwise False.
+    EXAMPLE: -
+-}
 checkSubGrid :: [Cell] -> Bool
 checkSubGrid lst
     | length (uniq [] lst) == 9 = True
     | otherwise = False
 
+{- uniq [] (x:xs)
+Removes duplicates from a list so that each item only appears once.
+    RETURNS: a list where each item only appears once.
+    EXAMPLES: uniq [1,1,1,3,4,5,5,6] = [1,3,4,5,6]
+-}
 uniq :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
 uniq x [] = x
 uniq [] (a:xs) = uniq [a] xs
 uniq x (a:xs) = if a `elem` x then uniq x xs else uniq (a:x) xs
 
+{- isFull game
+Checks if the game grid is filled (contains no comments or empty cells)
+    RETURNS: True if filled, otherwise False.
+    EXAMPLES: -
+-}
 isFull :: Game -> Bool
 isFull game = checkFull game [(x, y) | x <- [1..9], y <- [1..9]]
 
+{- checkFUll game ((r,c):xs)
+Checks every coord of the grid and checks if its empty
+    RETURNS: True if full, otherwise False.
+-}
 checkFull :: Game -> [Coord] -> Bool
 checkFull game [] = True
 checkFull game ((r, c):xs)
-    | getElem r c (grid game) == Empty (r, c) = False
+    | getElem r c (grid game) == Empty (r, c) {-|| getElem r c (grid game) == Note _ (r, c)-} = False --Fix pattern matching for Note
     | otherwise = checkFull game xs
 
 {- box n game
