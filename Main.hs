@@ -9,22 +9,19 @@ import Brick
 
 main :: IO ()
 main = do
-    putStrLn $ unlines 
-        ["Welcome!", "1) Load game", "2) Start editor", "3) Help", "q) Quit"]
-    putStr ">"
-    choice <- getLine
-    case choice of 
-        "1" -> do 
+    menuState <- defaultMain menuApp menuDialog
+    case getChoice menuState of 
+        Just 0 -> do 
             putStr "Filename: "
             file <- getLine
             gameState <- loadGrid ("Puzzles/"++file)
             endGame <- defaultMain app gameState
             return ()
-        "2" -> do 
+        Just 1 -> do 
             endGame <- defaultMain editorApp emptyGame
             saveFileLoop endGame
             return ()
-        "3" -> do
+        Just 2 -> do
             putStrLn $ unlines
                 ["1: Loads a previously saved game", 
                 "2: Starts the editor. Use this if you want to create an own sudoku to play later.", 
@@ -32,5 +29,5 @@ main = do
                 "4: Quit the game"
                 ]
             main
-        "q" -> return ()
+        Nothing -> return ()
         _   -> main
