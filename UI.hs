@@ -39,15 +39,23 @@ mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
 
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
+noteAttr    = attrName "Note"
 focusedAttr = attrName "Focused"
 illegalAttr = attrName "Illegal"
 focusedInputAttr = attrName "FocusedInput"
+focusedNoteAttr  = attrName "FocusedNote"
+defaultAttr      = attrName "Default"
+focusedIllegalAttr = attrName "FocusedIllegal"
 attributes = attrMap defAttr [
       (lockAttr, fg white)
+    , (defaultAttr, defAttr)
     , (inputAttr, fg brightBlue )
+    , (noteAttr, fg brightGreen)
     , (focusedAttr, bg brightBlack)
-    , (illegalAttr, brightBlue `on` brightRed)
+    , (illegalAttr, brightBlue `on` red)
     , (focusedInputAttr, brightBlue `on` brightBlack)
+    , (focusedNoteAttr, brightGreen `on` brightBlack)
+    , (focusedIllegalAttr, brightBlue `on` magenta)
     ]
 
 editorApp :: App Game a Name
@@ -132,39 +140,39 @@ drawGame :: Game -> [Widget Name]
 drawGame g =
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
+
+legalInput :: Cell -> Game -> Bool
+legalInput cell game = legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
+
+
+hightlightCursor :: Cell -> Game -> Widget Name
+hightlightCursor cell game = let coord = getCoordFromCell cell in
+        if coord == focusedCell game then
+            (\attr -> forceAttr attr (drawCell cell game))
+            (case cell of 
+                (Input _ coord) -> focusedInputAttr
+                (Lock _ coord)  -> focusedAttr
+                (Note _ coord)  -> focusedNoteAttr
+                (Empty coord)   -> focusedAttr)
+        else (\attr -> withAttr attr (drawCell cell game))
+            (case cell of 
+                (Input _ coord) -> inputAttr
+                (Lock _ coord)  -> lockAttr
+                (Note _ coord)  -> noteAttr
+                (Empty coord)   -> defaultAttr)
+
 --Cell widget. Draws focused cell with a "lightBlack" background color
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game = 
+    let x = getIntFromCell cell in
+    let filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       " in
     case cell of 
         (Lock x coord)  -> 
-            if coord == focusedCell game then
-                withAttr focusedAttr filledCell
-            else
-                withAttr lockAttr filledCell
-            where
-                filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
-
-        (Input x coord) ->
-            if (legalInSubGrid cell (listSubGrid coord) game) && (legalInRow cell game) && (legalInCol cell game) then
-                if coord == focusedCell game then
-                    withAttr focusedInputAttr filledCell
-                else
-                    withAttr inputAttr filledCell
-            else
-                if coord == focusedCell game then
-                    withAttr focusedInputAttr filledCell
-                else
-                    withAttr illegalAttr filledCell
-            where
-                filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       "
-
-        (Empty coord)   ->
-            if coord == focusedCell game then        
-                withAttr focusedAttr emptyCell
-            else
-                emptyCell
-            where 
-                emptyCell  = str "       " <=> str "       " <=> str "       "
+            filledCell
+        (Input x coord) ->  if not (legalInput cell game) then
+                                forceAttr illegalAttr filledCell
+                            else filledCell
+        (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
 --Makes a Table widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
@@ -174,7 +182,7 @@ drawBox n g =
     $ surroundingBorder False 
     $ table 
     $ chunksOf 3
-    $ map (`drawCell` g)
+    $ map (`hightlightCursor` g)
     $ toList 
     $ box n g
 
@@ -202,7 +210,7 @@ drawDebug g = withBorderStyle unicodeRounded
     $ borderWithLabel (str "Debug")
     $ vLimitPercent 50
     $ padAll 1
-    $ str $ "Cursor pos: " ++ show (focusedCell g)
+    $ str $ "Cursor position: " ++ show (focusedCell g)
 
 --Info widget
 drawHelp :: Widget Name

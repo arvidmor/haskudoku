@@ -5,18 +5,19 @@ import Data.Matrix
 import Prelude hiding (Right, Left)
 
 --GRID OPERATIONS
+
+
 {- isLocked grid coord 
 Checks if a cell in a grid is Locked
     RETURNS:    True iff the cell at argument coords is Lock
 -}
-
-
 isLocked :: Grid -> Coord -> Bool
 isLocked g (r, c) = let cell = getElem r c g in
     case cell of 
         (Lock _ _)  -> True
-        Input _ _  -> False
-        Empty _    -> False
+        Input _ _   -> False
+        Note _ _    -> False
+        Empty _     -> False
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
@@ -29,6 +30,7 @@ insert (Lock i _) (r, c) game           = game {grid = setElem (Lock i (r, c)) (
 insert (Input i _) (r, c) game 
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
+insert (Note xs _) (r, c) game = game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
 
 
 {- delete (r, c) grid
@@ -41,7 +43,7 @@ delete (r, c) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
-deleteLocked ::  Coord -> Game -> Game
+deleteLocked ::  Coord -> Game -> Game 
 deleteLocked (r, c) game
     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
