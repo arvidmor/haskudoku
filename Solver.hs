@@ -23,7 +23,7 @@ legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
 legalInSubGrid (Empty _) _ _                              = True
 legalInSubGrid (Input i coord) lst@(x:xs) game
-    | coord == x = legalInSubGrid (Input i coord) xs game
+    | coord == x                                          = legalInSubGrid (Input i coord) xs game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
     | otherwise                                           = legalInSubGrid (Input i coord) xs game
 
@@ -68,11 +68,11 @@ Checks if (Input i) is equal to any of the cells on the row x.
 -}
 checkRow :: Cell -> Int -> Game -> Bool
 checkRow (Input i (r, c)) acc game
-    | 9 < acc                                         = True
-    | getElem r acc (grid game) == Empty (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
+    | 9 < acc                                                = True
+    | getElem r acc (grid game) == Empty (r, acc)            = checkRow (Input i (r, c)) (acc + 1) game
     | (r, c) == getCoordFromCell (getElem r acc (grid game)) = checkRow (Input i (r, c)) (acc + 1) game
-    | i == getIntFromCell (getElem r acc (grid game)) = False
-    | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem r acc (grid game))        = False
+    | otherwise                                              = checkRow (Input i (r, c)) (acc + 1) game
 
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
@@ -91,11 +91,11 @@ Checks if (Input i) is equal to any of the cells on the col x.
 -}
 checkCol :: Cell -> Int -> Game -> Bool
 checkCol (Input i (r, c)) acc game
-    | 9 < acc                                         = True
-    | getElem acc c (grid game) == Empty (acc, c)     = checkCol (Input i (r, c)) (acc + 1) game
+    | 9 < acc                                                = True
+    | getElem acc c (grid game) == Empty (acc, c)            = checkCol (Input i (r, c)) (acc + 1) game
     | (r, c) == getCoordFromCell (getElem acc c (grid game)) = checkCol (Input i (r, c)) (acc + 1) game
-    | i == getIntFromCell (getElem acc c (grid game)) = False
-    | otherwise                                       = checkCol (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem acc c (grid game))        = False
+    | otherwise                                              = checkCol (Input i (r, c)) (acc + 1) game
 
 --Gets the int from the cell data-type.
 --RETURNS 0 IF THE CELL IS EMPTY
@@ -106,9 +106,43 @@ getIntFromCell (Empty _)    = 0
 
 getCoordFromCell :: Cell -> Coord
 getCoordFromCell (Input _ (r, c)) = (r, c)
-getCoordFromCell (Lock _ (r, c)) = (r, c)
-getCoordFromCell (Empty (r, c)) = (r, c)
+getCoordFromCell (Lock _ (r, c))  = (r, c)
+getCoordFromCell (Empty (r, c))   = (r, c)
 
+isCompleted :: Game -> Bool
+isCompleted game = checkAllCols game && checkAllRows game {-&& checkAllSubGrids game && isFull game-}
+
+checkAllCols :: Game -> Bool
+checkAllCols game = checkAllColsAux game 1 1
+
+checkAllColsAux :: Game -> Int -> Int -> Bool
+checkAllColsAux game row col
+    | col == 10 = True
+    | otherwise = legalCol game row col && checkAllColsAux game row (col + 1)
+
+legalCol :: Game -> Int -> Int -> Bool
+legalCol game row col
+    | row == 10 = True
+    | otherwise = legalInCol (getElem row col (grid game)) game && legalCol game (row + 1) col
+
+checkAllRows :: Game -> Bool
+checkAllRows game = checkAllRowsAux game 1 1
+
+checkAllRowsAux :: Game -> Int -> Int -> Bool
+checkAllRowsAux game row col
+    | row == 10 = True
+    | otherwise = legalRow game row col && checkAllRowsAux game (row + 1) col
+
+legalRow :: Game -> Int -> Int -> Bool
+legalRow game row col
+    | col == 10 = True
+    | otherwise = legalInRow (getElem row col (grid game)) game && legalRow game row (col + 1)
+
+checkAllSubGrids :: Game -> Bool
+checkAllSubGrids game = undefined
+
+isFull :: Game -> Bool
+isFull game = undefined
 
 --legalInput :: Cell -> Game -> Bool
 --legalInput cell game = legalInCol cell game && legalInRow cell game && legalInSubGrid cell game
