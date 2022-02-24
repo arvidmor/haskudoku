@@ -102,6 +102,16 @@ handleEvent g (VtyEvent (EvKey key [])) =
     (KChar '9') -> continue $ insert (Input 9 (focusedCell g)) (focusedCell g) g
     KDel        -> continue $ delete (focusedCell g) g
     KBS         -> continue $ delete (focusedCell g) g
+    -- Input number as note
+    (KChar '!') -> continue $ insert (Note [1] (focusedCell g)) (focusedCell g) g
+    (KChar '"') -> continue $ insert (Note [2] (focusedCell g)) (focusedCell g) g
+    (KChar '#') -> continue $ insert (Note [3] (focusedCell g)) (focusedCell g) g
+    (KChar '¤') -> continue $ insert (Note [4] (focusedCell g)) (focusedCell g) g
+    (KChar '%') -> continue $ insert (Note [5] (focusedCell g)) (focusedCell g) g
+    (KChar '&') -> continue $ insert (Note [6] (focusedCell g)) (focusedCell g) g
+    (KChar '/') -> continue $ insert (Note [7] (focusedCell g)) (focusedCell g) g
+    (KChar '(') -> continue $ insert (Note [8] (focusedCell g)) (focusedCell g) g
+    (KChar ')') -> continue $ insert (Note [9] (focusedCell g)) (focusedCell g) g
      --Global events
     (KChar 'q') -> halt g
     _           -> continue g
