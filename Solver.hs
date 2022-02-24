@@ -123,10 +123,6 @@ getNotesFromCell cell =
         (Input _ _) -> []
         (Empty _)   -> []
 
-getCoordFromCell (Input _ (r, c)) = (r, c)
-getCoordFromCell (Lock _ (r, c))  = (r, c)
-getCoordFromCell (Empty (r, c))   = (r, c)
-
 isCompleted :: Game -> Bool
 isCompleted game = checkAllCols game && checkAllRows game {-&& checkAllSubGrids game-} && isFull game
 
