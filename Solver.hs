@@ -112,6 +112,14 @@ getCoordFromCell (Lock _ (r, c))    = (r, c)
 getCoordFromCell (Empty (r, c))     = (r, c)
 getCoordFromCell (Note _ (r,c))     = (r, c)
 
+getNotesFromCell :: Cell -> [Int]
+getNotesFromCell cell =
+    case cell of
+        (Note xs _) -> xs
+        (Lock _ _)  -> []
+        (Input _ _) -> []
+        (Empty _)   -> []
+
 
 --legalInput :: Cell -> Game -> Bool
 --legalInput cell game = legalInCol cell game && legalInRow cell game && legalInSubGrid cell game
