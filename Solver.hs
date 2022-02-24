@@ -71,8 +71,7 @@ checkRow :: Cell -> Int -> Game -> Bool
 checkRow (Input i (r, c)) acc game
     | 9 < acc                                         = True
     | getElem r acc (grid game) == Empty (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
---    | getElem r acc (grid game) == Note _ (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
-    | (r, c) == getCoordFromCell (getElem r acc (grid game)) = checkRow (Input i (r, c)) (acc + 1) game
+    | (r, c) == getCoordFromCell (getElem r acc (grid game)) = checkRow (Input i (r, c)) (acc + 1) game -- if compared with self, move on
     | i == getIntFromCell (getElem r acc (grid game)) = False
     | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
 
@@ -95,7 +94,6 @@ checkCol :: Cell -> Int -> Game -> Bool
 checkCol (Input i (r, c)) acc game
     | 9 < acc                                                   = True
     | getElem acc c (grid game) == Empty (acc, c)               = checkCol (Input i (r, c)) (acc + 1) game
---    | getElem acc c (grid game) == Note _ (acc, c)              = checkCol (Input i (r, c)) (acc + 1) game
     | (r, c) == getCoordFromCell (getElem acc c (grid game))    = checkCol (Input i (r, c)) (acc + 1) game
     | i == getIntFromCell (getElem acc c (grid game))           = False
     | otherwise                                                 = checkCol (Input i (r, c)) (acc + 1) game
@@ -106,7 +104,7 @@ getIntFromCell :: Cell -> Int
 getIntFromCell (Input i _)  = i
 getIntFromCell (Lock i _)   = i
 getIntFromCell (Empty _)    = 0
-getIntFromCell (Note _ _)   = 0 -- Correct?
+getIntFromCell (Note _ _)   = 0
 
 getCoordFromCell :: Cell -> Coord
 getCoordFromCell (Input _ (r, c))   = (r, c)
