@@ -162,10 +162,7 @@ handleEventEditor g (VtyEvent (EvResize _ _ )) = continue g
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
 handleEventMenu d (VtyEvent (EvKey key [])) = 
     --Navigate and pick option
-    case key of 
-        (KChar 'q')     -> halt d
-        KEnter          -> halt d
-        _               -> continue =<< handleDialogEvent (EvKey key []) d
+    if key == KEnter then halt d else continue =<< handleDialogEvent (EvKey key []) d
 --Resize
 handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
 
@@ -265,10 +262,10 @@ drawHelp = withBorderStyle unicodeRounded
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace" 
 
 drawMenu :: Dialog Int -> [Widget Name]
-drawMenu d = [renderDialog d (forceAttr buttonAttr (center $ str "Haskudoku"))]
+drawMenu d = [renderDialog d (center $ str "Haskudoku")]
 
 menuDialog :: Dialog Int
-menuDialog = dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 3)])) 100
+menuDialog = dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
 getChoice :: Dialog Int -> Maybe Int
 getChoice = dialogSelection 
