@@ -45,20 +45,17 @@ deleteLocked ::  Coord -> Game -> Game
 deleteLocked (r, c) game
     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
-
-box :: Int -> Game -> Matrix Cell
-box n game = 
-    case n of 
-    1   -> submatrix 1 3 1 3 (grid game)
-    2   -> submatrix 1 3 4 6 (grid game)
-    3   -> submatrix 1 3 7 9 (grid game)
-    4   -> submatrix 4 6 1 3 (grid game)
-    5   -> submatrix 4 6 4 6 (grid game)
-    6   -> submatrix 4 6 7 9 (grid game)
-    7   -> submatrix 7 9 1 3 (grid game)
-    8   -> submatrix 7 9 4 6 (grid game)
-    9   -> submatrix 7 9 7 9 (grid game)
-
+{- step dir game
+Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9,
+returns the corresponding coord at the opposite side of a 9x9 Matrix.
+    RETURNS:    coord with one of the components changed according to the following chart:
+                Up  | Down | Left | Right
+                r-1 |  r+1 | c-1  |  c+1
+    EXAMPLES:   step Up (1, 5)      == (9, 5)
+                step Left (2, 7)    == (1, 7)
+                step Down (4, 4)    == (5, 4)
+                step Right (8, 9)   == (8, 1)
+-}
 step :: Direction -> Game -> Game
 step direction game = 
     (\(r, c) -> game {focusedCell = (r, c)}) $ case (direction, (r, c)) of 

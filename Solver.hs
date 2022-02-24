@@ -58,6 +58,7 @@ Checks if i exists on the row r.
 -}
 legalInRow :: Cell -> Game -> Bool
 legalInRow (Empty _) _           = True
+legalInRow (Lock i (r, c)) game  = checkRow (Input i (r, c)) 1 game
 legalInRow (Input i (r, c)) game = checkRow (Input i (r, c)) 1 game
 
 {- checkRow (Input i) x acc grid
@@ -81,6 +82,7 @@ Checks if i exists on the column c.
 -}
 legalInCol :: Cell -> Game -> Bool
 legalInCol (Empty _) _           = True
+legalInCol (Lock i (r, c)) game  = checkCol (Input i (r, c)) 1 game
 legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 
 {- checkCol (Input i) x acc grid
@@ -104,13 +106,14 @@ getIntFromCell (Input i _)  = i
 getIntFromCell (Lock i _)   = i
 getIntFromCell (Empty _)    = 0
 
+--Gets the coord-value from a cell
 getCoordFromCell :: Cell -> Coord
 getCoordFromCell (Input _ (r, c)) = (r, c)
 getCoordFromCell (Lock _ (r, c))  = (r, c)
 getCoordFromCell (Empty (r, c))   = (r, c)
 
 isCompleted :: Game -> Bool
-isCompleted game = checkAllCols game && checkAllRows game {-&& checkAllSubGrids game && isFull game-}
+isCompleted game = checkAllCols game && checkAllRows game {-&& checkAllSubGrids game-} && isFull game
 
 checkAllCols :: Game -> Bool
 checkAllCols game = checkAllColsAux game 1 1
@@ -139,44 +142,49 @@ legalRow game row col
     | otherwise = legalInRow (getElem row col (grid game)) game && legalRow game row (col + 1)
 
 checkAllSubGrids :: Game -> Bool
-checkAllSubGrids game = undefined
+checkAllSubGrids game = checkAllSubGridsAux game 1
+
+checkAllSubGridsAux :: Game -> Int -> Bool
+checkAllSubGridsAux game boxId
+    | boxId == 10 = True
+    | otherwise = checkSubGrid (toList (box boxId game)) && checkAllSubGridsAux game (boxId + 1)
+
+checkSubGrid :: [Cell] -> Bool
+checkSubGrid lst
+    | length (uniq [] lst) == 9 = True
+    | otherwise = False
+
+uniq :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
+uniq x [] = x
+uniq [] (a:xs) = uniq [a] xs
+uniq x (a:xs) = if a `elem` x then uniq x xs else uniq (a:x) xs
 
 isFull :: Game -> Bool
-isFull game = undefined
+isFull game = checkFull game [(x, y) | x <- [1..9], y <- [1..9]]
 
---legalInput :: Cell -> Game -> Bool
---legalInput cell game = legalInCol cell game && legalInRow cell game && legalInSubGrid cell game
+checkFull :: Game -> [Coord] -> Bool
+checkFull game [] = True
+checkFull game ((r, c):xs)
+    | getElem r c (grid game) == Empty (r, c) = False
+    | otherwise = checkFull game xs
 
 {- box n game
 Creates a submatrix corresponding to the n'th box of the sudoku-grid
     RETURNS:    the n'th box of the grid in the current state game
-    EXAMPLES:   
+    EXAMPLES:
 -}
-
-
-{- step dir game
-Transforms a game state according to the argument direction. If the resulting Coord indices are not 0 < (r, c) <= 9, 
-returns the corresponding coord at the opposite side of a 9x9 Matrix.
-    RETURNS:    coord with one of the components changed according to the following chart:
-                Up  | Down | Left | Right
-                r-1 |  r+1 | c-1  |  c+1
-    EXAMPLES:   step Up (1, 5)      == (9, 5)
-                step Left (2, 7)    == (1, 7)
-                step Down (4, 4)    == (5, 4)
-                step Right (8, 9)   == (8, 1)
--}
-
-
-{- writeGridToFile input filePath
-Writes input to the file with the file path filePath
-    RETURNS: Nothing
-    EXAMPLES: -
--}
-writeGridToFile :: Show a => a -> FilePath -> IO ()
-writeGridToFile input filePath = do
-  file <- openFile filePath WriteMode
-  hPrint file input
-  hClose file
+box :: Int -> Game -> Matrix Cell
+box n game =
+    case n of
+    1   -> submatrix 1 3 1 3 (grid game)
+    2   -> submatrix 1 3 4 6 (grid game)
+    3   -> submatrix 1 3 7 9 (grid game)
+    4   -> submatrix 4 6 1 3 (grid game)
+    5   -> submatrix 4 6 4 6 (grid game)
+    6   -> submatrix 4 6 7 9 (grid game)
+    7   -> submatrix 7 9 1 3 (grid game)
+    8   -> submatrix 7 9 4 6 (grid game)
+    9   -> submatrix 7 9 7 9 (grid game)
 
 {- clearFile filePath
 Clears the file with file path filePath.
@@ -185,50 +193,3 @@ Clears the file with file path filePath.
 -}
 clearFile :: FilePath -> IO ()
 clearFile filePath = writeFile filePath ""
-
-{- stringToMatrix str
-Converts a list of cells in string-format to a Matrix cell.
-    RETURNS: the string str as a Matrix Cell
-    EXAMPLES: -
--}
-
--- stringToMatrix :: String -> Grid
--- stringToMatrix str = fromList 9 9 (stringToMatrixAux str)
-
-{- stringToMatrixAux str
-Creates a list of cells from a string containing key-words of type cell.
-    RETURNS: a list of cells based on the cells inside the string str.
-    VARIANT: amount of words in str (fix this variant)
-    EXAMPLES: -
--}
-
--- stringToMatrixAux :: String -> [Cell]
--- stringToMatrixAux "" = []
--- stringToMatrixAux str@(x:xs)
---     | [x] == "[" || [x] == "]" || [x] == "," = stringToMatrixAux xs
---     | [x] == "E"                             = [Empty] ++ stringToMatrixAux (shortenString (x:xs))
---     | [x] == "L"                             = [Lock (getNr (x:xs) 1 6)] ++ stringToMatrixAux (shortenString (x:xs))
---     | [x] == "I"                             = [Input (getNr (x:xs) 1 7)] ++ stringToMatrixAux (shortenString (x:xs))
---     | otherwise                              = [] ++ stringToMatrixAux (shortenString (x:xs))
-
-{- getNr str acc lim
-Gets a specific character in a string and returns it as an int.
-    RETURNS: the character indexed (lim - acc) in str as an int
-    VARIANT: (lim - acc)
-    EXAMPLES: -
--}
-getNr :: String -> Int -> Int -> Int
-getNr str@(x:xs) acc lim
-    | acc == lim = (read [x] :: Int)
-    | otherwise  = getNr xs (acc + 1) lim
-
-{- shortenString str
-Removes every character in a string until a "," or a "]" appears in the string
-    RETURNS: the remaining part of the string str after it has been shortened
-    VARIANT: (length str) until , or ] is found. (fix this variant)
-    EXAMPLES: shortenString "hehe, hoho" = " hoho"
--}
-shortenString :: String -> String
-shortenString str@(x:xs)
-    | [x] == "," || [x] == "]" = xs
-    | otherwise                = shortenString xs
