@@ -68,7 +68,7 @@ editorApp = App {
 }
 
 app :: App Game a Name
-app = App { 
+app = App {
     appDraw         = drawGame
   , appChooseCursor = neverShowCursor
   , appHandleEvent  = handleEvent
@@ -149,60 +149,70 @@ hightlightCursor :: Cell -> Game -> Widget Name
 hightlightCursor cell game = let coord = getCoordFromCell cell in
         if coord == focusedCell game then
             (\attr -> forceAttr attr (drawCell cell game))
-            (case cell of 
+            (case cell of
                 (Input _ coord) -> focusedInputAttr
                 (Lock _ coord)  -> focusedAttr
                 (Note _ coord)  -> focusedNoteAttr
                 (Empty coord)   -> focusedAttr)
         else (\attr -> withAttr attr (drawCell cell game))
-            (case cell of 
+            (case cell of
                 (Input _ coord) -> inputAttr
                 (Lock _ coord)  -> lockAttr
                 (Note _ coord)  -> noteAttr
                 (Empty coord)   -> defaultAttr)
 
+
+
 --Cell widget. Draws focused cell with a "lightBlack" background color
 drawCell :: Cell -> Game -> Widget Name
-drawCell cell game = 
+drawCell cell game =
     let x = getIntFromCell cell in
     let filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       " in
-    case cell of 
-        (Lock x coord)  -> 
+    case cell of
+        (Lock x coord)  ->
             filledCell
         (Input x coord) ->  if not (legalInput cell game) then
                                 forceAttr illegalAttr filledCell
                             else filledCell
+        (Note xs coord) ->
+            let f x = if x `elem` xs then show x  ++ " " else "  "  in
+            let xs' = map f [1..9] in
+            withAttr noteAttr
+            $ vBox
+            $ map hBox
+            $ chunksOf 3 
+            $ map str xs'
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
 --Makes a Table widget from the cells in box n of game state
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
-    withBorderStyle unicode 
+    withBorderStyle unicode
     $ renderTable
-    $ surroundingBorder False 
-    $ table 
+    $ surroundingBorder False
+    $ table
     $ chunksOf 3
     $ map (`hightlightCursor` g)
-    $ toList 
+    $ toList
     $ box n g
 
 drawGrid :: Game -> Widget Name
-drawGrid g = withBorderStyle unicodeBold 
-        $ joinBorders 
+drawGrid g = withBorderStyle unicodeBold
+        $ joinBorders
         $ upperBorder
         <=>  vBox [
           hBox [outerVBorder, drawBox 1 g,  innerVBorder, drawBox 2 g, innerVBorder, drawBox 3 g, outerVBorder]
         , innerHBorder
         , hBox [outerVBorder, drawBox 4 g, innerVBorder, drawBox 5 g, innerVBorder,  drawBox 6 g, outerVBorder]
         , innerHBorder
-        , hBox [outerVBorder, drawBox 7 g, innerVBorder, drawBox 8 g, innerVBorder, drawBox 9 g, outerVBorder]] 
+        , hBox [outerVBorder, drawBox 7 g, innerVBorder, drawBox 8 g, innerVBorder, drawBox 9 g, outerVBorder]]
         <=> lowerBorder
         where
     innerVBorder    = setAvailableSize (1, 11) $ withBorderStyle unicodeBold vBorder
     innerHBorder    = setAvailableSize (73, 1) $ withBorderStyle unicodeBold (hBorderWithLabel (str "┣━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━┫"))
     upperBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┏━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┓")
     lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
-    outerVBorder    = setAvailableSize (1, 11) vBorder 
+    outerVBorder    = setAvailableSize (1, 11) vBorder
 
 --Debug widget
 drawDebug :: Game  -> Widget Name
