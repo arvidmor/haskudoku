@@ -3,6 +3,7 @@ import Types
 import Solver
 import Data.Matrix
 import Prelude hiding (Right, Left)
+import SimplMonad (getFamEnvs)
 
 --GRID OPERATIONS
 
@@ -19,6 +20,16 @@ isLocked g (r, c) = let cell = getElem r c g in
         Note _ _    -> False
         Empty _     -> False
 
+isNote :: Grid -> Coord -> Int
+isNote g (r, c) = 
+    let cell = getElem r c g in
+    case cell of 
+        (Lock _ _)  -> 0
+        Input _ _   -> 1
+        Note _ _    -> 2
+        Empty _     -> 1
+
+
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
     RETURNS: the updated version of grid
@@ -30,7 +41,14 @@ insert (Lock i _) (r, c) game           = game {grid = setElem (Lock i (r, c)) (
 insert (Input i _) (r, c) game 
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
-insert (Note xs _) (r, c) game = game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
+--insert (Note xs _) (r, c) game = game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
+insert (Note xs _) (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
+    case isNote (grid game) (r, c) of
+    0    -> game
+    1    -> game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
+    2    -> game {grid = setElem (Note (xs ++ notes) (r, c)) (r, c) (grid game)}
+
+
 
 
 {- delete (r, c) grid
