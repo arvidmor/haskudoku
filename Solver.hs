@@ -70,6 +70,11 @@ checkRow (Input i (r, c)) acc game
     | i == getIntFromCell (getElem r acc (grid game)) = False
     | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
 
+--Check if a cell is legal
+legalInput :: Cell -> Game -> Bool
+legalInput cell game = 
+    legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
+
 {- legalInCol (Input i) (r, c) grid
 Checks if i exists on the column c.
     RETURNS: True if i doesn't exist on c, False if i does exist on c.
