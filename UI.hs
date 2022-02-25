@@ -21,8 +21,10 @@ import Prelude hiding (Right, Left)
 
 import Brick.Widgets.Table
     ( renderTable, surroundingBorder, table )
-import Brick.Widgets.List (list, renderList)
+import Brick.Widgets.List (list, renderList, listSelectedAttr)
 import Data.List (intersperse, intercalate)
+import Brick.Widgets.FileBrowser
+
 
 emptyGame :: Game
 emptyGame = Game {
@@ -52,7 +54,7 @@ defaultAttr      = attrName "Default"
 logoAttr = attrName "Logo"
 
 --ATTRIBUTE MAPS
-gameAttrs, menuAttrs :: AttrMap
+gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
       (lockAttr, fg white)
     , (defaultAttr, defAttr)
@@ -64,11 +66,15 @@ gameAttrs = attrMap defAttr [
     , (focusedNoteAttr, brightGreen `on` brightBlack)
     , (focusedIllegalAttr, brightBlue `on` magenta)
     ]
-
 menuAttrs = attrMap defAttr [
+
       (buttonSelectedAttr, bg brightBlack)
     , (buttonAttr , fg white)
     , (logoAttr, fg green)
+    ]
+fileBrowserAttrs = attrMap defAttr [
+      (fileBrowserRegularFileAttr, fg green)
+    , (listSelectedAttr, green `on` brightBlack)
     ]
 
 --APP TYPES
@@ -81,6 +87,15 @@ menuApp = App {
   , appAttrMap      = const menuAttrs
 }
 
+fileBrowserApp :: App (FileBrowser Name) a Name
+fileBrowserApp = App {
+    appDraw         = drawFileBrowser
+  , appChooseCursor = neverShowCursor
+  , appHandleEvent  = handleEventFileBrowser
+  , appStartEvent   = return
+  , appAttrMap      = const fileBrowserAttrs
+}
+
 editorApp :: App Game a Name
 editorApp = App {
     appDraw         = drawGame
@@ -90,11 +105,11 @@ editorApp = App {
   , appAttrMap      = const gameAttrs
 }
 
-app :: App Game a Name
-app = App {
+gameApp :: App Game a Name
+gameApp = App {
     appDraw         = drawGame
   , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEvent
+  , appHandleEvent  = handleEventGame
   , appStartEvent   = return
   , appAttrMap      = const gameAttrs
 }
@@ -102,14 +117,15 @@ app = App {
 --EVENT HANDLING
 --Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
 
-handleEvent :: Game -> BrickEvent Name a -> EventM Name (Next Game)
+handleEventGame :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit game
-handleEvent g (VtyEvent (EvKey (KChar 'q') [])) = 
+handleEventGame g (VtyEvent (EvKey (KChar 'q') [])) =
     halt g
-handleEvent g (VtyEvent (EvKey key [])) =
-    continue event where 
+--Grid operations
+handleEventGame g (VtyEvent (EvKey key [])) =
+    continue event where
         coord = focusedCell g
-        event = case key of 
+        event = case key of
             --Navigation
             KUp         -> step Up g
             KDown       -> step Down g
@@ -131,24 +147,29 @@ handleEvent g (VtyEvent (EvKey key [])) =
             (KChar '!') -> insert (Note [1] coord) coord g
             (KChar '"') -> insert (Note [2] coord) coord g
             (KChar '#') -> insert (Note [3] coord) coord g
-            (KChar '¤') -> insert (Note [4] coord) coord g 
-            (KChar '%') -> insert (Note [5] coord) coord g 
+            (KChar '¤') -> insert (Note [4] coord) coord g
+            (KChar '%') -> insert (Note [5] coord) coord g
             (KChar '&') -> insert (Note [6] coord) coord g
-            (KChar '/') -> insert (Note [7] coord) coord g 
+            (KChar '/') -> insert (Note [7] coord) coord g
             (KChar '(') -> insert (Note [8] coord) coord g
-            (KChar ')') -> insert (Note [9] coord) coord g 
+            (KChar ')') -> insert (Note [9] coord) coord g
             _           -> g
 --Resize
-handleEvent g (VtyEvent (EvResize _ _ )) = continue g
+handleEventGame g (VtyEvent (EvResize _ _ )) =
+    continue g
+--Modifier keys exception handling
+handleEventGame g (VtyEvent (EvKey key [_])) =
+    continue g
 
 handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit Editor
-handleEventEditor g (VtyEvent (EvKey (KChar 'q') [])) = 
+handleEventEditor g (VtyEvent (EvKey (KChar 'q') [])) =
     halt g
+--Grid operations
 handleEventEditor g (VtyEvent (EvKey key [])) =
-    continue event where 
+    continue event where
         coord = focusedCell g
-        event = case key of 
+        event = case key of
             --Navigation
             KUp         -> step Up g
             KDown       -> step Down g
@@ -167,16 +188,32 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
             KDel        -> deleteLocked (focusedCell g) g
             KBS         -> deleteLocked (focusedCell g) g
             _           -> g
-    --Resize
-handleEventEditor g (VtyEvent (EvResize _ _ )) = continue g
+--Resize
+handleEventEditor g (VtyEvent (EvResize _ _ )) =
+    continue g
+--Modifier keys exception handling
+handleEventEditor g (VtyEvent (EvKey key [_])) =
+    continue g
 
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
+--Navigate and pick option
 handleEventMenu d (VtyEvent (EvKey key [])) =
-    --Navigate and pick option
+
     if key == KEnter then halt d else continue =<< handleDialogEvent (EvKey key []) d
 --Resize
 handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
 
+handleEventFileBrowser :: FileBrowser Name -> BrickEvent Name a -> EventM Name (Next (FileBrowser Name))
+handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
+    case key of
+            KUp         -> continue =<< actionFileBrowserListPrev fb
+            KDown       -> continue =<< actionFileBrowserListNext fb
+            KEnter      -> halt =<< actionFileBrowserSelectEnter fb
+            (KChar 'q') -> halt fb
+            _           -> continue fb
+--Modifier keys exception handling
+handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
+    continue fb
 
 --DRAWING FUNCTIONS
 --Composite of all widgets in game
@@ -184,14 +221,9 @@ drawGame :: Game -> [Widget Name]
 drawGame g =
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
---Check if a cell is legal
-legalInput :: Cell -> Game -> Bool
-legalInput cell game = 
-    legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
-
 --Highlights a cell if it's at current cursor position
 hightlightCursor :: Cell -> Game -> Widget Name
-hightlightCursor cell game = 
+hightlightCursor cell game =
     let coord = getCoordFromCell cell in
         if coord == focusedCell game then
             (\attr -> forceAttr attr (drawCell cell game))
@@ -206,7 +238,6 @@ hightlightCursor cell game =
                 (Lock _ coord)  -> lockAttr
                 (Note _ coord)  -> noteAttr
                 (Empty coord)   -> defaultAttr)
-
 
 
 --Cell widget. Draws illegal (input) cells in red
@@ -244,7 +275,7 @@ drawBox n g =
 
 --Composites all 9 boxes of game state into a grid
 drawGrid :: Game -> Widget Name
-drawGrid g = 
+drawGrid g =
     withBorderStyle unicodeBold
         $ joinBorders
         $ upperBorder
@@ -264,7 +295,7 @@ drawGrid g =
 
 --Debug widget
 drawDebug :: Game  -> Widget Name
-drawDebug g = 
+drawDebug g =
     withBorderStyle unicodeRounded
     $ borderWithLabel (str "Debug")
     $ vLimitPercent 50
@@ -273,19 +304,18 @@ drawDebug g =
 
 --Info widget
 drawHelp :: Widget Name
-drawHelp = 
+drawHelp =
     withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
---
 drawMenu :: Dialog Int -> [Widget Name]
-drawMenu d = 
+drawMenu d =
     [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
 
 haskudokuLogo :: Widget Name
-haskudokuLogo = 
+haskudokuLogo =
     vBox [
     str " _   _           _              _       _          "
   , str "| | | |         | |            | |     | |         "
@@ -296,11 +326,21 @@ haskudokuLogo =
     ]
 
 menuDialog :: Dialog Int
-menuDialog = 
+menuDialog =
     dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
---
 getChoice :: Dialog Int -> Maybe Int
-getChoice = 
+getChoice =
     dialogSelection
 
+drawFileBrowser :: FileBrowser Name -> [Widget Name]
+drawFileBrowser fb =
+    [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [str "-------------", str "Help",str "-------------",  str "Select file: Enter/SpaceBar", str "Navigate: Up/Down arrows"])]
+
+fileTypeFilter :: Maybe (FileInfo -> Bool)
+fileTypeFilter =
+    Just (fileTypeMatch [RegularFile])
+
+fileBrowser :: IO (FileBrowser Name)
+fileBrowser =
+    newFileBrowser selectNonDirectories () (Just "Puzzles")

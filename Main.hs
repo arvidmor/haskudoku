@@ -4,6 +4,7 @@ import Types
 import UI
 import FileIO
 import Brick
+import Brick.Widgets.FileBrowser 
 
 
 
@@ -12,11 +13,15 @@ main = do
     menuState <- defaultMain menuApp menuDialog
     case getChoice menuState of 
         Just 0  -> do 
-            putStr "Filename: "
-            file <- getLine
-            gameState <- loadGrid ("Puzzles/"++file)
-            endGame <- defaultMain app gameState
-            return ()
+            initBrowserState <- fileBrowser
+            browserState <- defaultMain fileBrowserApp (setFileBrowserEntryFilter fileTypeFilter initBrowserState)
+            let choice = fileBrowserSelection browserState
+            case choice of 
+                (file:files)  -> do 
+                        gameState <- loadGrid ("Puzzles/" ++ fileInfoFilename file)
+                        endGame <- defaultMain gameApp gameState
+                        return ()
+                []      -> main
         Just 1  -> do 
             endGame <- defaultMain editorApp emptyGame
             saveFileLoop endGame
