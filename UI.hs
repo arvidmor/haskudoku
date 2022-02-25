@@ -38,6 +38,8 @@ mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
     complete = False
 }
 
+--ATTRIBUTES
+lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr :: AttrName
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
 noteAttr    = attrName "Note"
@@ -45,9 +47,13 @@ focusedAttr = attrName "Focused"
 illegalAttr = attrName "Illegal"
 focusedInputAttr = attrName "FocusedInput"
 focusedNoteAttr  = attrName "FocusedNote"
-defaultAttr      = attrName "Default"
 focusedIllegalAttr = attrName "FocusedIllegal"
-attributes = attrMap defAttr [
+defaultAttr      = attrName "Default"
+logoAttr = attrName "Logo"
+
+--ATTRIBUTE MAPS
+gameAttrs, menuAttrs :: AttrMap
+gameAttrs = attrMap defAttr [
       (lockAttr, fg white)
     , (defaultAttr, defAttr)
     , (inputAttr, fg brightBlue )
@@ -59,18 +65,20 @@ attributes = attrMap defAttr [
     , (focusedIllegalAttr, brightBlue `on` magenta)
     ]
 
-menuAttributes = attrMap defAttr [
-    (buttonSelectedAttr, bg brightBlack)
+menuAttrs = attrMap defAttr [
+      (buttonSelectedAttr, bg brightBlack)
     , (buttonAttr , fg white)
-    ]   
+    , (logoAttr, fg green)
+    ]
 
+--APP TYPES
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
     appDraw         = drawMenu
   , appChooseCursor = showFirstCursor
   , appHandleEvent  = handleEventMenu
-  , appStartEvent   = return 
-  , appAttrMap      = const menuAttributes
+  , appStartEvent   = return
+  , appAttrMap      = const menuAttrs
 }
 
 editorApp :: App Game a Name
@@ -79,7 +87,7 @@ editorApp = App {
   , appChooseCursor = neverShowCursor
   , appHandleEvent  = handleEventEditor
   , appStartEvent   = return
-  , appAttrMap      = const attributes
+  , appAttrMap      = const gameAttrs
 }
 
 app :: App Game a Name
@@ -88,97 +96,103 @@ app = App {
   , appChooseCursor = neverShowCursor
   , appHandleEvent  = handleEvent
   , appStartEvent   = return
-  , appAttrMap      = const attributes
+  , appAttrMap      = const gameAttrs
 }
 
 --EVENT HANDLING
-{-
-    Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
--}
+--Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
 
 handleEvent :: Game -> BrickEvent Name a -> EventM Name (Next Game)
---Navigation
+--Quit game
+handleEvent g (VtyEvent (EvKey (KChar 'q') [])) = 
+    halt g
 handleEvent g (VtyEvent (EvKey key [])) =
-    case key of
-    --Navigation
-    KUp         -> continue $ step Up g
-    KDown       -> continue $ step Down g
-    KLeft       -> continue $ step Left g
-    KRight      -> continue $ step Right g
-    --Input and remove numbers
-    (KChar '1') -> continue $ insert (Input 1 (focusedCell g)) (focusedCell g) g
-    (KChar '2') -> continue $ insert (Input 2 (focusedCell g)) (focusedCell g) g
-    (KChar '3') -> continue $ insert (Input 3 (focusedCell g)) (focusedCell g) g
-    (KChar '4') -> continue $ insert (Input 4 (focusedCell g)) (focusedCell g) g
-    (KChar '5') -> continue $ insert (Input 5 (focusedCell g)) (focusedCell g) g
-    (KChar '6') -> continue $ insert (Input 6 (focusedCell g)) (focusedCell g) g
-    (KChar '7') -> continue $ insert (Input 7 (focusedCell g)) (focusedCell g) g
-    (KChar '8') -> continue $ insert (Input 8 (focusedCell g)) (focusedCell g) g
-    (KChar '9') -> continue $ insert (Input 9 (focusedCell g)) (focusedCell g) g
-    KDel        -> continue $ delete (focusedCell g) g
-    KBS         -> continue $ delete (focusedCell g) g
-    -- Input number as note
-    (KChar '!') -> continue $ insert (Note [1] (focusedCell g)) (focusedCell g) g
-    (KChar '"') -> continue $ insert (Note [2] (focusedCell g)) (focusedCell g) g
-    (KChar '#') -> continue $ insert (Note [3] (focusedCell g)) (focusedCell g) g
-    (KChar '¤') -> continue $ insert (Note [4] (focusedCell g)) (focusedCell g) g
-    (KChar '%') -> continue $ insert (Note [5] (focusedCell g)) (focusedCell g) g
-    (KChar '&') -> continue $ insert (Note [6] (focusedCell g)) (focusedCell g) g
-    (KChar '/') -> continue $ insert (Note [7] (focusedCell g)) (focusedCell g) g
-    (KChar '(') -> continue $ insert (Note [8] (focusedCell g)) (focusedCell g) g
-    (KChar ')') -> continue $ insert (Note [9] (focusedCell g)) (focusedCell g) g
-     --Global events
-    (KChar 'q') -> halt g
-    _           -> continue g
+    continue event where 
+        coord = focusedCell g
+        event = case key of 
+            --Navigation
+            KUp         -> step Up g
+            KDown       -> step Down g
+            KLeft       -> step Left g
+            KRight      -> step Right g
+            --Input and remove numbers
+            (KChar '1') -> insert (Input 1 coord) coord g
+            (KChar '2') -> insert (Input 2 coord) coord g
+            (KChar '3') -> insert (Input 3 coord) coord g
+            (KChar '4') -> insert (Input 4 coord) coord g
+            (KChar '5') -> insert (Input 5 coord) coord g
+            (KChar '6') -> insert (Input 6 coord) coord g
+            (KChar '7') -> insert (Input 7 coord) coord g
+            (KChar '8') -> insert (Input 8 coord) coord g
+            (KChar '9') -> insert (Input 9 coord) coord g
+            KDel        -> delete coord g
+            KBS         -> delete coord g
+            -- Input number as note
+            (KChar '!') -> insert (Note [1] coord) coord g
+            (KChar '"') -> insert (Note [2] coord) coord g
+            (KChar '#') -> insert (Note [3] coord) coord g
+            (KChar '¤') -> insert (Note [4] coord) coord g 
+            (KChar '%') -> insert (Note [5] coord) coord g 
+            (KChar '&') -> insert (Note [6] coord) coord g
+            (KChar '/') -> insert (Note [7] coord) coord g 
+            (KChar '(') -> insert (Note [8] coord) coord g
+            (KChar ')') -> insert (Note [9] coord) coord g 
+            _           -> g
 --Resize
 handleEvent g (VtyEvent (EvResize _ _ )) = continue g
 
 handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
+--Quit Editor
+handleEventEditor g (VtyEvent (EvKey (KChar 'q') [])) = 
+    halt g
 handleEventEditor g (VtyEvent (EvKey key [])) =
-    case key of
-    --Navigation
-    KUp         -> continue $ step Up g
-    KDown       -> continue $ step Down g
-    KLeft       -> continue $ step Left g
-    KRight      -> continue $ step Right  g
-    --Input and remove numbers
-    (KChar '1') -> continue $ insert (Lock 1 (focusedCell g)) (focusedCell g) g
-    (KChar '2') -> continue $ insert (Lock 2 (focusedCell g)) (focusedCell g) g
-    (KChar '3') -> continue $ insert (Lock 3 (focusedCell g)) (focusedCell g) g
-    (KChar '4') -> continue $ insert (Lock 4 (focusedCell g)) (focusedCell g) g
-    (KChar '5') -> continue $ insert (Lock 5 (focusedCell g)) (focusedCell g) g
-    (KChar '6') -> continue $ insert (Lock 6 (focusedCell g)) (focusedCell g) g
-    (KChar '7') -> continue $ insert (Lock 7 (focusedCell g)) (focusedCell g) g
-    (KChar '8') -> continue $ insert (Lock 8 (focusedCell g)) (focusedCell g) g
-    (KChar '9') -> continue $ insert (Lock 9 (focusedCell g)) (focusedCell g) g
-    KDel        -> continue $ deleteLocked (focusedCell g) g
-    KBS         -> continue $ deleteLocked (focusedCell g) g
-     --Global events
-    (KChar 'q') -> halt g
-    _           -> continue g
+    continue event where 
+        coord = focusedCell g
+        event = case key of 
+            --Navigation
+            KUp         -> step Up g
+            KDown       -> step Down g
+            KLeft       -> step Left g
+            KRight      -> step Right  g
+            --Input and remove numbers
+            (KChar '1') -> insert (Lock 1 (focusedCell g)) (focusedCell g) g
+            (KChar '2') -> insert (Lock 2 (focusedCell g)) (focusedCell g) g
+            (KChar '3') -> insert (Lock 3 (focusedCell g)) (focusedCell g) g
+            (KChar '4') -> insert (Lock 4 (focusedCell g)) (focusedCell g) g
+            (KChar '5') -> insert (Lock 5 (focusedCell g)) (focusedCell g) g
+            (KChar '6') -> insert (Lock 6 (focusedCell g)) (focusedCell g) g
+            (KChar '7') -> insert (Lock 7 (focusedCell g)) (focusedCell g) g
+            (KChar '8') -> insert (Lock 8 (focusedCell g)) (focusedCell g) g
+            (KChar '9') -> insert (Lock 9 (focusedCell g)) (focusedCell g) g
+            KDel        -> deleteLocked (focusedCell g) g
+            KBS         -> deleteLocked (focusedCell g) g
+            _           -> g
     --Resize
 handleEventEditor g (VtyEvent (EvResize _ _ )) = continue g
 
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
-handleEventMenu d (VtyEvent (EvKey key [])) = 
+handleEventMenu d (VtyEvent (EvKey key [])) =
     --Navigate and pick option
     if key == KEnter then halt d else continue =<< handleDialogEvent (EvKey key []) d
 --Resize
 handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
 
+
 --DRAWING FUNCTIONS
---Composite of all widgets
+--Composite of all widgets in game
 drawGame :: Game -> [Widget Name]
 drawGame g =
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
 
-
+--Check if a cell is legal
 legalInput :: Cell -> Game -> Bool
-legalInput cell game = legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
+legalInput cell game = 
+    legalInSubGrid cell (listSubGrid (getCoordFromCell cell)) game && legalInRow cell game && legalInCol cell game
 
-
+--Highlights a cell if it's at current cursor position
 hightlightCursor :: Cell -> Game -> Widget Name
-hightlightCursor cell game = let coord = getCoordFromCell cell in
+hightlightCursor cell game = 
+    let coord = getCoordFromCell cell in
         if coord == focusedCell game then
             (\attr -> forceAttr attr (drawCell cell game))
             (case cell of
@@ -195,7 +209,7 @@ hightlightCursor cell game = let coord = getCoordFromCell cell in
 
 
 
---Cell widget. Draws focused cell with a "lightBlack" background color
+--Cell widget. Draws illegal (input) cells in red
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
     let x = getIntFromCell cell in
@@ -212,7 +226,7 @@ drawCell cell game =
             withAttr noteAttr
             $ vBox
             $ map hBox
-            $ chunksOf 3 
+            $ chunksOf 3
             $ map str xs'
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
@@ -228,8 +242,10 @@ drawBox n g =
     $ toList
     $ box n g
 
+--Composites all 9 boxes of game state into a grid
 drawGrid :: Game -> Widget Name
-drawGrid g = withBorderStyle unicodeBold
+drawGrid g = 
+    withBorderStyle unicodeBold
         $ joinBorders
         $ upperBorder
         <=>  vBox [
@@ -248,7 +264,8 @@ drawGrid g = withBorderStyle unicodeBold
 
 --Debug widget
 drawDebug :: Game  -> Widget Name
-drawDebug g = withBorderStyle unicodeRounded
+drawDebug g = 
+    withBorderStyle unicodeRounded
     $ borderWithLabel (str "Debug")
     $ vLimitPercent 50
     $ padAll 1
@@ -256,16 +273,20 @@ drawDebug g = withBorderStyle unicodeRounded
 
 --Info widget
 drawHelp :: Widget Name
-drawHelp = withBorderStyle unicodeRounded
+drawHelp = 
+    withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace" 
+    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
+--
 drawMenu :: Dialog Int -> [Widget Name]
-drawMenu d = [renderDialog d (center haskudokuLogo)]
+drawMenu d = 
+    [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
 
 haskudokuLogo :: Widget Name
-haskudokuLogo = vBox [
+haskudokuLogo = 
+    vBox [
     str " _   _           _              _       _          "
   , str "| | | |         | |            | |     | |         "
   , str "| |_| | __ _ ___| | ___   _  __| | ___ | | ___   _ "
@@ -275,8 +296,11 @@ haskudokuLogo = vBox [
     ]
 
 menuDialog :: Dialog Int
-menuDialog = dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
+menuDialog = 
+    dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
+--
 getChoice :: Dialog Int -> Maybe Int
-getChoice = dialogSelection 
+getChoice = 
+    dialogSelection
 
