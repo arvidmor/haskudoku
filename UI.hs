@@ -347,13 +347,13 @@ fileBrowser =
 
 drawStatus:: Game -> Widget ()
 drawStatus g
-    | (isFull g) && (isCompleted g) = 
+    | isCompleted g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ vLimitPercent 50
         $ padAll 1
         $ str "CORRECT! Well done!"
-    | (isFull g) &&  not (isCompleted g) = 
+    | isFull g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ vLimitPercent 50
