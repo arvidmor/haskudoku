@@ -238,9 +238,12 @@ Checks every coord of the grid and checks if its empty
 -}
 checkFull :: Game -> [Coord] -> Bool
 checkFull game [] = True
-checkFull game ((r, c):xs)
-    | getElem r c (grid game) == Empty (r, c) {-|| getElem r c (grid game) == Note _ (r, c)-} = False --Fix pattern matching for Note
-    | otherwise = checkFull game xs
+checkFull game ((r, c):xs) = case cell of
+    (Note xs _) -> False
+    (Lock _ _)  -> checkFull game xs
+    (Input _ _) -> checkFull game xs
+    (Empty _)   -> False
+    where cell = getElem r c (grid game) 
 
 {- box n game
 Creates a submatrix corresponding to the n'th box of the sudoku-grid
