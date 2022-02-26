@@ -219,7 +219,7 @@ handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
 --Composite of all widgets in game
 drawGame :: Game -> [Widget Name]
 drawGame g =
-    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
+    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp <=> drawStatus g)]
 
 --Highlights a cell if it's at current cursor position
 hightlightCursor :: Cell -> Game -> Widget Name
@@ -344,3 +344,24 @@ fileTypeFilter =
 fileBrowser :: IO (FileBrowser Name)
 fileBrowser =
     newFileBrowser selectNonDirectories () (Just "Puzzles")
+
+drawStatus:: Game -> Widget ()
+drawStatus g
+    | (isFull g) && (isCompleted g) = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "CORRECT! Well done!"
+    | (isFull g) &&  not (isCompleted g) = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "Incorrect. Keep trying."
+    | otherwise = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "Incomplete"
