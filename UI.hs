@@ -25,78 +25,77 @@ import Brick.Widgets.List (list, renderList, listSelectedAttr)
 import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
 
-
 -- ATTRIBUTES
 lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr :: AttrName
-lockAttr    = attrName "Lock"
-inputAttr   = attrName "Input"
-noteAttr    = attrName "Note"
-focusedAttr = attrName "Focused"
-illegalAttr = attrName "Illegal"
-focusedInputAttr = attrName "FocusedInput"
-focusedNoteAttr  = attrName "FocusedNote"
-focusedIllegalAttr = attrName "FocusedIllegal"
-defaultAttr      = attrName "Default"
-logoAttr = attrName "Logo"
+lockAttr            = attrName "Lock"
+inputAttr           = attrName "Input"
+noteAttr            = attrName "Note"
+focusedAttr         = attrName "Focused"
+illegalAttr         = attrName "Illegal"
+focusedInputAttr    = attrName "FocusedInput"
+focusedNoteAttr     = attrName "FocusedNote"
+focusedIllegalAttr  = attrName "FocusedIllegal"
+defaultAttr         = attrName "Default"
+logoAttr            = attrName "Logo"
 
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
-      (lockAttr, fg white)
-    , (defaultAttr, defAttr)
-    , (inputAttr, fg brightBlue )
-    , (noteAttr, fg brightGreen)
-    , (focusedAttr, bg brightBlack)
-    , (illegalAttr, brightBlue `on` red)
-    , (focusedInputAttr, brightBlue `on` brightBlack)
-    , (focusedNoteAttr, brightGreen `on` brightBlack)
-    , (focusedIllegalAttr, brightBlue `on` magenta)
+    (lockAttr, fg white), 
+    (defaultAttr, defAttr),
+    (inputAttr, fg brightBlue), 
+    (noteAttr, fg brightGreen), 
+    (focusedAttr, bg brightBlack), 
+    (illegalAttr, brightBlue `on` red), 
+    (focusedInputAttr, brightBlue `on` brightBlack), 
+    (focusedNoteAttr, brightGreen `on` brightBlack), 
+    (focusedIllegalAttr, brightBlue `on` magenta)
     ]
 menuAttrs = attrMap defAttr [
-      (buttonSelectedAttr, bg brightBlack)
-    , (buttonAttr , fg white)
-    , (logoAttr, fg green)
+    (buttonSelectedAttr, bg brightBlack), 
+    (buttonAttr, fg white), 
+    (logoAttr, fg green)
     ]
 fileBrowserAttrs = attrMap defAttr [
-      (fileBrowserRegularFileAttr, fg green)
-    , (listSelectedAttr, green `on` brightBlack)
+    (fileBrowserRegularFileAttr, fg green), 
+    (listSelectedAttr, green `on` brightBlack)
     ]
 
 --APP TYPES
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
-    appDraw         = drawMenu
-  , appChooseCursor = showFirstCursor
-  , appHandleEvent  = handleEventMenu
-  , appStartEvent   = return
-  , appAttrMap      = const menuAttrs
+    appDraw         = drawMenu, 
+    appChooseCursor = showFirstCursor, 
+    appHandleEvent  = handleEventMenu, 
+    appStartEvent   = return, 
+    appAttrMap      = const menuAttrs
 }
 
 fileBrowserApp :: App (FileBrowser Name) a Name
 fileBrowserApp = App {
-    appDraw         = drawFileBrowser
-  , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEventFileBrowser
-  , appStartEvent   = return
-  , appAttrMap      = const fileBrowserAttrs
+    appDraw         = drawFileBrowser, 
+    appChooseCursor = neverShowCursor, 
+    appHandleEvent  = handleEventFileBrowser, 
+    appStartEvent   = return, 
+    appAttrMap      = const fileBrowserAttrs
 }
 
 editorApp :: App Game a Name
 editorApp = App {
-    appDraw         = drawGame
-  , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEventEditor
-  , appStartEvent   = return
-  , appAttrMap      = const gameAttrs
+    appDraw         = drawGame, 
+    appChooseCursor = neverShowCursor, 
+    appHandleEvent  = handleEventEditor, 
+    appStartEvent   = return, 
+    appAttrMap      = const gameAttrs
 }
 
 gameApp :: App Game a Name
 gameApp = App {
-    appDraw         = drawGame
-  , appChooseCursor = neverShowCursor
-  , appHandleEvent  = handleEventGame
-  , appStartEvent   = return
-  , appAttrMap      = const gameAttrs
+    appDraw         = drawGame, 
+    appChooseCursor = neverShowCursor, 
+    appHandleEvent  = handleEventGame, 
+    appStartEvent   = return, 
+    appAttrMap      = const gameAttrs
 }
 
 --EVENT HANDLING
@@ -190,11 +189,11 @@ handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
 handleEventFileBrowser :: FileBrowser Name -> BrickEvent Name a -> EventM Name (Next (FileBrowser Name))
 handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
     case key of
-            KUp         -> continue =<< actionFileBrowserListPrev fb
-            KDown       -> continue =<< actionFileBrowserListNext fb
-            KEnter      -> halt =<< actionFileBrowserSelectEnter fb
-            (KChar 'q') -> halt fb
-            _           -> continue fb
+        KUp         -> continue =<< actionFileBrowserListPrev fb
+        KDown       -> continue =<< actionFileBrowserListNext fb
+        KEnter      -> halt =<< actionFileBrowserSelectEnter fb
+        (KChar 'q') -> halt fb
+        _           -> continue fb
 --Modifier keys exception handling
 handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
     continue fb
