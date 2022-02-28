@@ -61,7 +61,14 @@ fileBrowserAttrs = attrMap defAttr [
     (listSelectedAttr, green `on` brightBlack)
     ]
 
---APP TYPES
+{- App types
+The app data type is what brick uses to decide which functions define the behavior for a given app. 
+    appDraw:        Which function is used to create the widgets displayed 
+    appChooseCursor: where to place the cursor or which function to define cursor behaviour, if any. 
+    appHandleEvent:  which funciton defines the event handling
+    appStartEvent:  An event to run when the app is initialized
+    appAttrMap:     function for of the attribute map for the app 
+-}
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
     appDraw         = drawMenu, 
