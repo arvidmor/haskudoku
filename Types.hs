@@ -6,7 +6,7 @@ import Data.Matrix
 Lock x represents a number in the grid that is predefined, and thus immutable,
 Input x represents a number in the grid that was input by the player.
 Empty is an empty cell
-    INVARIANT:  0 < x <= 10 where x == (Input x) || (Lock x)
+    INVARIANT:  0 < x < 10 where x == (Input x c) || (Lock x c)
 -}
 data Cell = Lock Int Coord    |
             Input Int Coord   |
