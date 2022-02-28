@@ -26,21 +26,7 @@ import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
 
 
-emptyGame :: Game
-emptyGame = Game {
-    grid = newSudokuMatrix,
-    focusedCell = (5, 5),
-    complete = False
-}
-
-mkGame :: Game
-mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
-    grid = newSudokuMatrix,
-    focusedCell = (5, 5),
-    complete = False
-}
-
---ATTRIBUTES
+-- ATTRIBUTES
 lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr :: AttrName
 lockAttr    = attrName "Lock"
 inputAttr   = attrName "Input"
@@ -53,7 +39,7 @@ focusedIllegalAttr = attrName "FocusedIllegal"
 defaultAttr      = attrName "Default"
 logoAttr = attrName "Logo"
 
---ATTRIBUTE MAPS
+-- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
       (lockAttr, fg white)
@@ -67,7 +53,6 @@ gameAttrs = attrMap defAttr [
     , (focusedIllegalAttr, brightBlue `on` magenta)
     ]
 menuAttrs = attrMap defAttr [
-
       (buttonSelectedAttr, bg brightBlack)
     , (buttonAttr , fg white)
     , (logoAttr, fg green)
@@ -116,7 +101,6 @@ gameApp = App {
 
 --EVENT HANDLING
 --Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
-
 handleEventGame :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit game
 handleEventGame g (VtyEvent (EvKey (KChar 'q') [])) =
@@ -219,7 +203,7 @@ handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
 --Composite of all widgets in game
 drawGame :: Game -> [Widget Name]
 drawGame g =
-    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp)]
+    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp <=> drawStatus g)]
 
 --Highlights a cell if it's at current cursor position
 hightlightCursor :: Cell -> Game -> Widget Name
@@ -310,6 +294,27 @@ drawHelp =
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
+drawStatus:: Game -> Widget ()
+drawStatus g
+    | isCompleted g = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "CORRECT! Well done!"
+    | isFull g = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "Incorrect. Keep trying."
+    | otherwise = 
+         withBorderStyle unicodeRounded
+        $ borderWithLabel (str "Status")
+        $ vLimitPercent 50
+        $ padAll 1
+        $ str "Incomplete"
+
 drawMenu :: Dialog Int -> [Widget Name]
 drawMenu d =
     [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
@@ -350,3 +355,24 @@ fileTypeFilter =
 fileBrowser :: IO (FileBrowser Name)
 fileBrowser =
     newFileBrowser selectNonDirectories () (Just "Puzzles")
+
+{-  emptyGame
+    Generates an empty game. 
+    RETURNS: A game with an empty grid and a focused cell at coordinates (5,5).
+    EXAMPLES:
+-}
+emptyGame :: Game
+emptyGame = Game {
+    grid = newSudokuMatrix,
+    focusedCell = (5, 5),
+    complete = False
+}
+
+{- REMOVE?
+mkGame :: Game
+mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
+    grid = newSudokuMatrix,
+    focusedCell = (5, 5),
+    complete = False
+}
+-}

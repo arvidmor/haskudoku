@@ -5,6 +5,8 @@ import Data.Matrix
 import Prelude hiding (Right, Left)
 import SimplMonad (getFamEnvs)
 
+newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
+
 --GRID OPERATIONS
 
 
@@ -20,6 +22,11 @@ isLocked g (r, c) = let cell = getElem r c g in
         Note _ _    -> False
         Empty _     -> False
 
+{- isNote g (r, c)
+Checks which cell-type exists at a specific coordinate in a grid
+    RETURNS: The Int value of the cell with coordinate (r, c) in the grid g.
+    EXAMPLES: -
+-}
 isNote :: Grid -> Coord -> Int
 isNote g (r, c) = 
     let cell = getElem r c g in
@@ -28,7 +35,6 @@ isNote g (r, c) =
         Input _ _   -> 1
         Note _ _    -> 2
         Empty _     -> 1
-
 
 {- insert (input i) (r, c) grid
 Inserts i into grid at row number r and column number c if the value is within the given boundary.
@@ -61,6 +67,11 @@ delete (r, c) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
+{- deleteLocked (r, c) game
+Removes a locked cell from a game.
+    RETURNS: game without the locked cell at coordinate (r, c)
+    EXAMPLES: -
+-}
 deleteLocked ::  Coord -> Game -> Game 
 deleteLocked (r, c) game
     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
