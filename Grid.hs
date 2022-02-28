@@ -5,6 +5,8 @@ import Data.Matrix
 import Prelude hiding (Right, Left)
 import SimplMonad (getFamEnvs)
 
+newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
+
 --GRID OPERATIONS
 
 
