@@ -204,7 +204,11 @@ drawGame :: Game -> [Widget Name]
 drawGame g =
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp <=> drawStatus g)]
 
---Highlights a cell if it's at current cursor position
+{- highlightCursor cell g
+Changes the background color of a cell if it's at the current cursor position
+    RETURNS:    A widget with an attribute applied according to the type of the value in cell. If the coordinate of a cell == focusedCell g then color the background grey, 
+                else use the default attribute for said cell value.
+-}
 hightlightCursor :: Cell -> Game -> Widget Name
 hightlightCursor cell game =
     let coord = getCoordFromCell cell in
@@ -223,7 +227,12 @@ hightlightCursor cell game =
                 (Empty coord)   -> defaultAttr)
 
 
---Cell widget. Draws illegal (input) cells in red
+{- drawCell cell g
+Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
+    RETURNS:    a widget containing a cell value 'cell' from the current game state 'g'
+    EXAMPLES:   -
+
+-}
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
     let x = getIntFromCell cell in
@@ -303,19 +312,19 @@ drawStatus g
     | isCompleted g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ vLimitPercent 50
+        $ setAvailableSize (30, 5) 
         $ padAll 1
         $ str "CORRECT! Well done!"
     | isFull g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ vLimitPercent 50
+        $ setAvailableSize (30, 5) 
         $ padAll 1
         $ str "Incorrect. Keep trying."
     | otherwise = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ vLimitPercent 50
+        $ setAvailableSize (30, 5) 
         $ padAll 1
         $ str "Incomplete"
 
