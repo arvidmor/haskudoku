@@ -317,7 +317,7 @@ whether the grid is full, and if so if the solution is correct.
 -}
 drawStatus:: Game -> Widget ()
 drawStatus g
-    | complete g = 
+    | complete (isCompleted g) = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5) 
