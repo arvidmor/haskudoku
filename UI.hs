@@ -209,7 +209,7 @@ handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
 --Composite of all widgets in game
 drawGame :: Game -> [Widget Name]
 drawGame g =
-    [center $ padRight (Pad 2) (drawGrid g) <+> (drawDebug g <=> drawHelp <=> drawStatus g)]
+    [center $ padRight (Pad 2) (drawGrid g) <+> (drawHelp <=> drawStatus g)]
 
 {- highlightCursor cell g
 Changes the background color of a cell if it's at the current cursor position
@@ -299,14 +299,6 @@ drawGrid g =
     lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
     outerVBorder    = setAvailableSize (1, 11) vBorder
 
---Debug widget
-drawDebug :: Game  -> Widget Name
-drawDebug g =
-    withBorderStyle unicodeRounded
-    $ borderWithLabel (str "Debug")
-    $ vLimitPercent 50
-    $ padAll 1
-    $ str $ "Cursor position: " ++ show (focusedCell g)
 
 --Info widget
 --Defines a widget with instructions for how to play the game.
@@ -344,10 +336,15 @@ drawStatus g
         $ padAll 1
         $ str "Incomplete             "
 
+{- drawMenu dialog
+Renders the main menu
+    RETURNS:    a list of the widgets rendered on the main menu, along with the dialog box options dialog
+-}
 drawMenu :: Dialog Int -> [Widget Name]
 drawMenu d =
     [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
 
+--Renders the haskudoku logo
 haskudokuLogo :: Widget Name
 haskudokuLogo =
     vBox [
@@ -359,14 +356,17 @@ haskudokuLogo =
   , str "\\_| |_/\\__,_|___/_|\\_\\\\__,_|\\__,_|\\___/|_|\\_\\\\__,_|"
     ]
 
+--Defines the options on the main menu
 menuDialog :: Dialog Int
 menuDialog =
     dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
+--Retrieves the number corresponding to the choice in a dialog
 getChoice :: Dialog Int -> Maybe Int
 getChoice =
     dialogSelection
 
+--Renders the file browser along with a help section
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
 drawFileBrowser fb =
     [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [
@@ -377,14 +377,16 @@ drawFileBrowser fb =
                                                                     str "Navigate: Up/Down arrows", 
                                                                     str "Go back: q"])]
 
+--Filters out directories from the file browser
 fileTypeFilter :: Maybe (FileInfo -> Bool)
 fileTypeFilter =
     Just (fileTypeMatch [RegularFile])
 
+--Retrieves the contents of the "Puzzles"-directory
 fileBrowser :: IO (FileBrowser Name)
 fileBrowser =
     newFileBrowser selectNonDirectories () (Just "Puzzles")
-
+    
 {-  emptyGame
     Generates an empty game. 
     RETURNS: A game with an empty grid and a focused cell at coordinates (5,5).
