@@ -256,7 +256,11 @@ drawBox n g =
     $ toList
     $ box n g
 
---Composites all 9 boxes of game state into a grid
+{- drawGrid g
+Composites all 9 boxes of game state into a grid
+    RETURNS: A widget containing a grid which consists of all 9 boxes of g.
+    EXAMPLES: -
+-}
 drawGrid :: Game -> Widget Name
 drawGrid g =
     withBorderStyle unicodeBold
@@ -286,6 +290,7 @@ drawDebug g =
     $ str $ "Cursor position: " ++ show (focusedCell g)
 
 --Info widget
+--Defines a widget with instructions for how to play the game.
 drawHelp :: Widget Name
 drawHelp =
     withBorderStyle unicodeRounded

@@ -5,9 +5,9 @@ import Data.Matrix
 {- The value of a given cell in a sudoku-grid
 Lock x c represents a number in the grid at the coordinates c that is predefined, and thus immutable.
 Input x c represents a number in the grid at the coordinates c that is input by the player.
-Note xs c represents a list of numbers in the grid at the coordinates c.  
+Note xs c represents a list of numbers in the grid at the coordinates c.
 Empty is an empty cell
-    INVARIANT:  0 < x < 10 
+    INVARIANT:  0 < x < 10
                 xs can only contain numbers between 1 and 0, and can't contain duplicate numbers.
 -}
 data Cell = Lock Int Coord    |
