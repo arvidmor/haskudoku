@@ -27,6 +27,7 @@ exportGrid game = show (toLists (grid game))
 
 {- saveGrid game filename
 Saves a gamestate to a file
+    SIDE-EFFECTS: writes game to the file with the name filename
     RETURNS: Nothing
     EXAMPLES: -
 -}
@@ -35,6 +36,7 @@ saveGrid game filename = writeFile filename (exportGrid game)
 
 {-loadGrid filename
 Loads the content of a file
+    SIDE-EFFECTS: reads a string from a file with the name filename and reads it as a game.
     RETURNS: Nothing
     EXAMPLES: -
 -}
@@ -43,6 +45,7 @@ loadGrid filename = importGrid <$> readFile filename
 
 {-saveFileLoop game
 Saves a gamestate to any file located in the directory "puzzles"
+    SIDE-EFFECTS: writes the contents of game to a file within the directory Puzzles.
     RETURNS: Nothing
     EXAMPLES: -
 -}
