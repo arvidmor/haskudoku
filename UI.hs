@@ -244,7 +244,11 @@ drawCell cell game =
             $ map str xs'
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
---Makes a Table widget from the cells in box n of game state
+{- drawBox n g
+Makes a Table widget from the cells in box n of game state
+    RETURNS: a Table widget from the cells in box n in g.
+    EXAMPLES: -
+-}
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
     withBorderStyle unicode
