@@ -5,7 +5,7 @@ import Prelude hiding (Right, Left)
 import System.IO
 import Types
 
-newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
+
 
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
