@@ -335,7 +335,13 @@ getChoice =
 
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
 drawFileBrowser fb =
-    [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [str "-------------", str "Help",str "-------------",  str "Select file: Enter/SpaceBar", str "Navigate: Up/Down arrows"])]
+    [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [
+                                                                    str "-------------", 
+                                                                    str "Help",
+                                                                    str "-------------",  
+                                                                    str "Select file: Enter/SpaceBar", 
+                                                                    str "Navigate: Up/Down arrows", 
+                                                                    str "Go back: q"])]
 
 fileTypeFilter :: Maybe (FileInfo -> Bool)
 fileTypeFilter =
