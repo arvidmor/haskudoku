@@ -127,8 +127,9 @@ Checks if the game is finished or not
     RETURNS: True if finished, otherwise False.
     EXAMPLES: -
 -}
-isCompleted :: Game -> Bool
-isCompleted game = checkAllCols game && checkAllRows game && checkAllSubGrids game && isFull game
+isCompleted :: Game -> Game
+isCompleted game =  if checkAllCols game && checkAllRows game && checkAllSubGrids game && isFull game then game {complete = True}
+                    else game
 
 {- checkAllCols game
 Checks if the number in each cell is legal in all cols
