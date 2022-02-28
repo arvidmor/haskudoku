@@ -231,7 +231,6 @@ hightlightCursor cell game =
 Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
     RETURNS:    a widget containing a cell value 'cell' from the current game state 'g'
     EXAMPLES:   -
-
 -}
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
@@ -311,14 +310,20 @@ drawHelp =
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
+{- drawStatus g
+Creates a widget that displays the current status of the game depending on
+whether the grid is full, and if so if the solution is correct.  
+    RETURNS:    A widget containing the current status of the game. 
+    EXAMPLES:   -
+-}
 drawStatus:: Game -> Widget ()
 drawStatus g
-    | isCompleted g = 
+    | complete g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5) 
         $ padAll 1
-        $ str "CORRECT! Well done!"
+        $ str "CORRECT! Well done!    "
     | isFull g = 
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
@@ -330,7 +335,7 @@ drawStatus g
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5) 
         $ padAll 1
-        $ str "Incomplete"
+        $ str "Incomplete             "
 
 drawMenu :: Dialog Int -> [Widget Name]
 drawMenu d =
