@@ -7,11 +7,7 @@ Lock x c represents a number in the grid at the coordinates c that is predefined
 Input x c represents a number in the grid at the coordinates c that is input by the player.
 Note x c represents a list of numbers in the grid at the coordinates c.  
 Empty is an empty cell
-<<<<<<< HEAD
     INVARIANT:  0 < x < 10 where x == (Input x c) || (Lock x c) (Note??)
-=======
-    INVARIANT:  0 < x < 10 where x == (Input x c) || (Lock x c)
->>>>>>> main
 -}
 data Cell = Lock Int Coord    |
             Input Int Coord   |
