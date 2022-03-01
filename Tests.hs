@@ -14,4 +14,5 @@ import Test.QuickCheck
 --Testcase to make sure that stepping R/L and U/D are inverse operations no matter where in the grid 
 test1 = TestCase $ assertEqual "step" (emptyGame {focusedCell = (1, 1)}) (step Types.Down $ step Types.Up $ step Types.Left $ step Types.Right (emptyGame {focusedCell = (1, 1)}))
 
-test2 = TestCase $ assertEqual "toggleNote" emptyGame (toggleNote 1 (5, 5) $ toggleNote 1 (5, 5) emptyGame)
+--Toggling a note on and off gives an empty cell again
+test2 = TestCase $ assertEqual "toggleNote" (grid emptyGame) (grid (toggleNote 1 (5, 5) $ toggleNote 1 (5, 5) emptyGame))
