@@ -35,10 +35,12 @@ isNote g (r, c) =
         Note _ _    -> 2
         Empty _     -> 1
 
-{- insert (input i) (r, c) grid
-Inserts i into grid at row number r and column number c if the value is within the given boundary.
-    RETURNS: the updated version of grid
-    EXAMPLES: -
+{- insert cell game
+Inserts a cell value into the grid of a game state if the value at that position is not locked. 
+Inserting a Note calls toggleNote recursively for all integers in the list of the note. 
+    PRE:        if cell == (Note nums coord) then nums must only contain integers from 1 to 9
+    RETURNS:    if the cell at the coordinate value of cell is locked OR cell == (Note [] coord) then game 
+                else game with cell inserted in the grid
 -}
 insert :: Cell -> Game -> Game
 insert (Empty (r, c))   game        = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
@@ -50,6 +52,13 @@ insert (Input i (r, c)) game
 insert (Note [] (r, c)) game        = game
 insert (Note (x:xs) (r, c)) game    = insert (Note xs (r, c)) (toggleNote x (r, c) game)
 
+{- toggleNote num (r, c) game
+Inserts a note into the grid of a game state if the value at that position is not locked.
+    PRE:        1 <= num <= 9
+                r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    RETURNS:    game with (Note num (r, c)) toggled in the grid of game
+-}
+
 toggleNote :: Int -> Coord -> Game -> Game
 toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
     case isNote (grid game) (r, c) of
@@ -60,9 +69,11 @@ toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game
         | otherwise         -> game {grid = setElem (Note (num : notes) (r, c)) (r, c) (grid game)}
     _    -> game
 
-{- delete (r, c) grid
-Deletes a value from position (r, c) in grid
-    RETURNS: the updated version of grid
+{- delete (r, c) game
+Deletes a value from position (r, c) in grid if the cell at that position is not locked
+    PRE:        r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    RETURNS:    iff (the cell at (r, c) in the grid of game) == (Lock _ (r, c)) then game
+                else game with (the cell at (r, c)) == Empty (r, c)
     EXAMPLES: -
 -}
 delete ::  Coord -> Game -> Game
@@ -71,8 +82,9 @@ delete (r, c) game
     | otherwise                     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
 {- deleteLocked (r, c) game
-Removes a locked cell from a game.
-    RETURNS: game without the locked cell at coordinate (r, c)
+Removes a locked cell from a grid in a game state
+    PRE:        r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    RETURNS:    game with (the cell at (r, c)) == Empty (r, c))
     EXAMPLES: -
 -}
 deleteLocked ::  Coord -> Game -> Game
