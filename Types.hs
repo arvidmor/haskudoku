@@ -33,7 +33,7 @@ Down represents moving downwards in the grid.
 Left represents movin to the left in the grid.
 Right represents moving to the right in the grid.
 -}
-data Direction  = Up | Down | Left | Right  deriving Show
+data Direction  = Up | Down | Left | Right  deriving (Show, Eq)
 
 {- State of the current game.
 grid represents the grid.
@@ -44,6 +44,6 @@ data Game = Game {
     grid        :: Grid,
     focusedCell :: Coord,
     complete    :: Bool
-} deriving Show
+} deriving (Eq, Show)
 
 type Name = ()
