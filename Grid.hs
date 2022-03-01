@@ -3,7 +3,6 @@ import Types
 import Solver
 import Data.Matrix
 import Prelude hiding (Right, Left)
-import SimplMonad (getFamEnvs)
 
 newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
 
@@ -16,7 +15,7 @@ Checks if a cell in a grid is Locked
 -}
 isLocked :: Grid -> Coord -> Bool
 isLocked g (r, c) = let cell = getElem r c g in
-    case cell of 
+    case cell of
         (Lock _ _)  -> True
         Input _ _   -> False
         Note _ _    -> False
@@ -28,9 +27,9 @@ Checks which cell-type exists at a specific coordinate in a grid
     EXAMPLES: -
 -}
 isNote :: Grid -> Coord -> Int
-isNote g (r, c) = 
+isNote g (r, c) =
     let cell = getElem r c g in
-    case cell of 
+    case cell of
         (Lock _ _)  -> 0
         Input _ _   -> 1
         Note _ _    -> 2
@@ -42,20 +41,22 @@ Inserts i into grid at row number r and column number c if the value is within t
     EXAMPLES: -
 -}
 insert :: Cell -> Coord -> Game -> Game
-insert (Empty _) (r, c) game            = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
-insert (Lock i _) (r, c) game           = game {grid = setElem (Lock i (r, c)) (r, c) (grid game)}
-insert (Input i _) (r, c) game 
+insert (Empty _) (r, c) game        = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
+insert (Lock i _) (r, c) game       = game {grid = setElem (Lock i (r, c)) (r, c) (grid game)}
+insert (Input i _) (r, c) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
---insert (Note xs _) (r, c) game = game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
-insert (Note xs _) (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
+insert (Note [x] _) (r, c) game     = toggleNote x (r, c) game
+
+toggleNote :: Int -> Coord -> Game -> Game
+toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
     case isNote (grid game) (r, c) of
     0    -> game
-    1    -> game {grid = setElem (Note xs (r, c)) (r, c) (grid game)}
-    2    -> game {grid = setElem (Note (xs ++ notes) (r, c)) (r, c) (grid game)}
-
-
-
+    1    -> game {grid = setElem (Note [num] (r, c)) (r, c) (grid game)}
+    2   | [num] == notes    -> game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
+        | num `elem` notes  -> game {grid = setElem (Note (filter (num /=) notes) (r, c)) (r, c) (grid game)}
+        | otherwise         -> game {grid = setElem (Note (num : notes) (r, c)) (r, c) (grid game)}
+    _    -> game
 
 {- delete (r, c) grid
 Deletes a value from position (r, c) in grid
@@ -72,7 +73,7 @@ Removes a locked cell from a game.
     RETURNS: game without the locked cell at coordinate (r, c)
     EXAMPLES: -
 -}
-deleteLocked ::  Coord -> Game -> Game 
+deleteLocked ::  Coord -> Game -> Game
 deleteLocked (r, c) game
     = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
 
@@ -88,8 +89,8 @@ returns the corresponding coord at the opposite side of a 9x9 Matrix.
                 step Right (8, 9)   == (8, 1)
 -}
 step :: Direction -> Game -> Game
-step direction game = 
-    (\(r, c) -> game {focusedCell = (r, c)}) $ case (direction, (r, c)) of 
+step direction game =
+    (\(r, c) -> game {focusedCell = (r, c)}) $ case (direction, (r, c)) of
             (Up, (1, c))      -> (9, c)
             (Up, (r, c))      -> (r-1, c)
             (Down, (9, c))    -> (1, c)
