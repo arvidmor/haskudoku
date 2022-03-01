@@ -263,6 +263,7 @@ box n game =
     7   -> submatrix 7 9 1 3 (grid game)
     8   -> submatrix 7 9 4 6 (grid game)
     9   -> submatrix 7 9 7 9 (grid game)
+    _   -> error "Box index not in range"
 
 {- clearFile filePath
 Clears the file with file path filePath.
