@@ -120,15 +120,15 @@ handleEventGame g (VtyEvent (EvKey key [])) =
             KLeft       -> step Left g
             KRight      -> step Right g
             --Input and remove numbers
-            (KChar '1') -> insert (Input 1 coord) coord g
-            (KChar '2') -> insert (Input 2 coord) coord g
-            (KChar '3') -> insert (Input 3 coord) coord g
-            (KChar '4') -> insert (Input 4 coord) coord g
-            (KChar '5') -> insert (Input 5 coord) coord g
-            (KChar '6') -> insert (Input 6 coord) coord g
-            (KChar '7') -> insert (Input 7 coord) coord g
-            (KChar '8') -> insert (Input 8 coord) coord g
-            (KChar '9') -> insert (Input 9 coord) coord g
+            (KChar '1') -> insert (Input 1 coord) g
+            (KChar '2') -> insert (Input 2 coord) g
+            (KChar '3') -> insert (Input 3 coord) g
+            (KChar '4') -> insert (Input 4 coord) g
+            (KChar '5') -> insert (Input 5 coord) g
+            (KChar '6') -> insert (Input 6 coord) g
+            (KChar '7') -> insert (Input 7 coord) g
+            (KChar '8') -> insert (Input 8 coord) g
+            (KChar '9') -> insert (Input 9 coord) g
             KDel        -> delete coord g
             KBS         -> delete coord g
             --Toggle notes
@@ -161,15 +161,15 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
             KLeft       -> step Left g
             KRight      -> step Right  g
             --Input and remove numbers
-            (KChar '1') -> insert (Lock 1 (focusedCell g)) (focusedCell g) g
-            (KChar '2') -> insert (Lock 2 (focusedCell g)) (focusedCell g) g
-            (KChar '3') -> insert (Lock 3 (focusedCell g)) (focusedCell g) g
-            (KChar '4') -> insert (Lock 4 (focusedCell g)) (focusedCell g) g
-            (KChar '5') -> insert (Lock 5 (focusedCell g)) (focusedCell g) g
-            (KChar '6') -> insert (Lock 6 (focusedCell g)) (focusedCell g) g
-            (KChar '7') -> insert (Lock 7 (focusedCell g)) (focusedCell g) g
-            (KChar '8') -> insert (Lock 8 (focusedCell g)) (focusedCell g) g
-            (KChar '9') -> insert (Lock 9 (focusedCell g)) (focusedCell g) g
+            (KChar '1') -> insert (Lock 1 (focusedCell g)) g
+            (KChar '2') -> insert (Lock 2 (focusedCell g)) g
+            (KChar '3') -> insert (Lock 3 (focusedCell g)) g
+            (KChar '4') -> insert (Lock 4 (focusedCell g)) g
+            (KChar '5') -> insert (Lock 5 (focusedCell g)) g
+            (KChar '6') -> insert (Lock 6 (focusedCell g)) g
+            (KChar '7') -> insert (Lock 7 (focusedCell g)) g
+            (KChar '8') -> insert (Lock 8 (focusedCell g)) g
+            (KChar '9') -> insert (Lock 9 (focusedCell g)) g
             KDel        -> deleteLocked (focusedCell g) g
             KBS         -> deleteLocked (focusedCell g) g
             _           -> g

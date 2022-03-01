@@ -40,13 +40,15 @@ Inserts i into grid at row number r and column number c if the value is within t
     RETURNS: the updated version of grid
     EXAMPLES: -
 -}
-insert :: Cell -> Coord -> Game -> Game
-insert (Empty _) (r, c) game        = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
-insert (Lock i _) (r, c) game       = game {grid = setElem (Lock i (r, c)) (r, c) (grid game)}
-insert (Input i _) (r, c) game
+insert :: Cell -> Game -> Game
+insert (Empty (r, c))   game        = game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
+insert (Lock i (r, c))  game        = game {grid = setElem (Lock i (r, c)) (r, c) (grid game)}
+insert (Input i (r, c)) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
-insert (Note [x] _) (r, c) game     = toggleNote x (r, c) game
+--VARIANT:  length xs
+insert (Note [] (r, c)) game        = game
+insert (Note (x:xs) (r, c)) game    = insert (Note xs (r, c)) (toggleNote x (r, c) game)
 
 toggleNote :: Int -> Coord -> Game -> Game
 toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
