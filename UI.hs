@@ -131,22 +131,19 @@ handleEventGame g (VtyEvent (EvKey key [])) =
             (KChar '9') -> insert (Input 9 coord) coord g
             KDel        -> delete coord g
             KBS         -> delete coord g
-            -- Input number as note
-            (KChar '!') -> insert (Note [1] coord) coord g
-            (KChar '"') -> insert (Note [2] coord) coord g
-            (KChar '#') -> insert (Note [3] coord) coord g
-            (KChar '¤') -> insert (Note [4] coord) coord g
-            (KChar '%') -> insert (Note [5] coord) coord g
-            (KChar '&') -> insert (Note [6] coord) coord g
-            (KChar '/') -> insert (Note [7] coord) coord g
-            (KChar '(') -> insert (Note [8] coord) coord g
-            (KChar ')') -> insert (Note [9] coord) coord g
+            --Toggle notes
+            (KChar '!') -> toggleNote 1 coord g
+            (KChar '"') -> toggleNote 2 coord g
+            (KChar '#') -> toggleNote 3 coord g
+            (KChar '¤') -> toggleNote 4 coord g
+            (KChar '%') -> toggleNote 5 coord g
+            (KChar '&') -> toggleNote 6 coord g
+            (KChar '/') -> toggleNote 7 coord g
+            (KChar '(') -> toggleNote 8 coord g
+            (KChar ')') -> toggleNote 9 coord g
             _           -> g
---Resize
-handleEventGame g (VtyEvent (EvResize _ _ )) =
-    continue g
---Modifier keys exception handling
-handleEventGame g (VtyEvent (EvKey key [_])) =
+--Everything else
+handleEventGame g _ =
     continue g
 
 handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
@@ -176,11 +173,8 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
             KDel        -> deleteLocked (focusedCell g) g
             KBS         -> deleteLocked (focusedCell g) g
             _           -> g
---Resize
-handleEventEditor g (VtyEvent (EvResize _ _ )) =
-    continue g
---Modifier keys exception handling
-handleEventEditor g (VtyEvent (EvKey key [_])) =
+--Everything else
+handleEventEditor g _ =
     continue g
 
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
@@ -188,8 +182,9 @@ handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog 
 handleEventMenu d (VtyEvent (EvKey key [])) =
 
     if key == KEnter then halt d else continue =<< handleDialogEvent (EvKey key []) d
---Resize
-handleEventMenu d (VtyEvent (EvResize _ _))    = continue d
+--Everything else
+handleEventMenu d _ =
+    continue d
 
 handleEventFileBrowser :: FileBrowser Name -> BrickEvent Name a -> EventM Name (Next (FileBrowser Name))
 handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
@@ -199,8 +194,8 @@ handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
         KEnter      -> halt =<< actionFileBrowserSelectEnter fb
         (KChar 'q') -> halt fb
         _           -> continue fb
---Modifier keys exception handling
-handleEventFileBrowser fb (VtyEvent (EvKey key [_])) =
+--Everything else
+handleEventFileBrowser fb _ =
     continue fb
 
 --DRAWING FUNCTIONS
@@ -366,14 +361,14 @@ getChoice =
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
 drawFileBrowser fb =
     [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [
-                                                                    str "-------------",
+                                                                    str "━━━━━━━━━━━━━━━━━━━━━━━━━━━",
                                                                     str "Help",
-                                                                    str "-------------",
-                                                                    str "Select file: Enter/SpaceBar",
-                                                                    str "Navigate: Up/Down arrows",
-                                                                    str "Go back: q"])]
+                                                                    str "━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                                                                    str "Select file: Enter",
+                                                                    str "Navigate:    Up/Down arrows",
+                                                                    str "Go back:     q"])]
 
---Filters out directories from the file browser
+--Used with setFileBrowserEntryFilter to filter out directories from the file browser
 fileTypeFilter :: Maybe (FileInfo -> Bool)
 fileTypeFilter =
     Just (fileTypeMatch [RegularFile])
@@ -395,11 +390,3 @@ emptyGame = Game {
     complete = False
 }
 
-{- REMOVE?
-mkGame :: Game
-mkGame = insert (Input 6 (1,2)) (1, 2) $ insert (Lock 5 (1,1)) (1,1) Game {
-    grid = newSudokuMatrix,
-    focusedCell = (5, 5),
-    complete = False
-}
--}
