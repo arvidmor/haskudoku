@@ -53,6 +53,7 @@ Checks if i exists on the row r.
 -}
 legalInRow :: Cell -> Game -> Bool
 legalInRow (Empty _) _           = True
+legalInRow (Note _ _) _           = True
 legalInRow (Lock i (r, c)) game  = checkRow (Input i (r, c)) 1 game
 legalInRow (Input i (r, c)) game = checkRow (Input i (r, c)) 1 game
 
@@ -82,6 +83,7 @@ Checks if i exists on the column c.
 -}
 legalInCol :: Cell -> Game -> Bool -- Necessary to pattern match for Note here?
 legalInCol (Empty _) _           = True
+legalInCol (Note _ _) _           = True
 legalInCol (Lock i (r, c)) game  = checkCol (Input i (r, c)) 1 game
 legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 
