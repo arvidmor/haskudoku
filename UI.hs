@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module UI where
 import Solver
 import Types
@@ -19,8 +18,7 @@ import Data.Matrix
 import Data.List.Split (chunksOf)
 import Prelude hiding (Right, Left)
 
-import Brick.Widgets.Table
-    ( renderTable, surroundingBorder, table )
+import Brick.Widgets.Table ( renderTable, surroundingBorder, table )
 import Brick.Widgets.List (list, renderList, listSelectedAttr)
 import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
@@ -41,23 +39,23 @@ logoAttr            = attrName "Logo"
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
-    (lockAttr, fg white), 
+    (lockAttr, fg white),
     (defaultAttr, defAttr),
-    (inputAttr, fg brightBlue), 
-    (noteAttr, fg brightGreen), 
-    (focusedAttr, bg brightBlack), 
-    (illegalAttr, brightBlue `on` red), 
-    (focusedInputAttr, brightBlue `on` brightBlack), 
-    (focusedNoteAttr, brightGreen `on` brightBlack), 
+    (inputAttr, fg brightBlue),
+    (noteAttr, fg brightGreen),
+    (focusedAttr, bg brightBlack),
+    (illegalAttr, brightBlue `on` red),
+    (focusedInputAttr, brightBlue `on` brightBlack),
+    (focusedNoteAttr, brightGreen `on` brightBlack),
     (focusedIllegalAttr, brightBlue `on` magenta)
     ]
 menuAttrs = attrMap defAttr [
-    (buttonSelectedAttr, bg brightBlack), 
-    (buttonAttr, fg white), 
+    (buttonSelectedAttr, bg brightBlack),
+    (buttonAttr, fg white),
     (logoAttr, fg green)
     ]
 fileBrowserAttrs = attrMap defAttr [
-    (fileBrowserRegularFileAttr, fg green), 
+    (fileBrowserRegularFileAttr, fg green),
     (listSelectedAttr, green `on` brightBlack)
     ]
 
@@ -71,37 +69,37 @@ The app data type is what brick uses to decide which functions define the behavi
 -}
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
-    appDraw         = drawMenu, 
-    appChooseCursor = showFirstCursor, 
-    appHandleEvent  = handleEventMenu, 
-    appStartEvent   = return, 
+    appDraw         = drawMenu,
+    appChooseCursor = showFirstCursor,
+    appHandleEvent  = handleEventMenu,
+    appStartEvent   = return,
     appAttrMap      = const menuAttrs
 }
 
 fileBrowserApp :: App (FileBrowser Name) a Name
 fileBrowserApp = App {
-    appDraw         = drawFileBrowser, 
-    appChooseCursor = neverShowCursor, 
-    appHandleEvent  = handleEventFileBrowser, 
-    appStartEvent   = return, 
+    appDraw         = drawFileBrowser,
+    appChooseCursor = neverShowCursor,
+    appHandleEvent  = handleEventFileBrowser,
+    appStartEvent   = return,
     appAttrMap      = const fileBrowserAttrs
 }
 
 editorApp :: App Game a Name
 editorApp = App {
-    appDraw         = drawGame, 
-    appChooseCursor = neverShowCursor, 
-    appHandleEvent  = handleEventEditor, 
-    appStartEvent   = return, 
+    appDraw         = drawGame,
+    appChooseCursor = neverShowCursor,
+    appHandleEvent  = handleEventEditor,
+    appStartEvent   = return,
     appAttrMap      = const gameAttrs
 }
 
 gameApp :: App Game a Name
 gameApp = App {
-    appDraw         = drawGame, 
-    appChooseCursor = neverShowCursor, 
-    appHandleEvent  = handleEventGame, 
-    appStartEvent   = return, 
+    appDraw         = drawGame,
+    appChooseCursor = neverShowCursor,
+    appHandleEvent  = handleEventGame,
+    appStartEvent   = return,
     appAttrMap      = const gameAttrs
 }
 
@@ -254,9 +252,7 @@ drawCell cell game =
             let xs' = map f [1..9] in
             withAttr noteAttr
             $ vBox
-            $ map hBox
-            $ chunksOf 3
-            $ map str xs'
+            $ map (hBox . (map str . (" " :))) (chunksOf 3 xs')
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
 {- drawBox n g
@@ -317,22 +313,22 @@ whether the grid is full, and if so if the solution is correct.
 -}
 drawStatus:: Game -> Widget ()
 drawStatus g
-    | complete (isCompleted g) = 
+    | complete (isCompleted g) =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ setAvailableSize (30, 5) 
+        $ setAvailableSize (30, 5)
         $ padAll 1
         $ str "CORRECT! Well done!    "
-    | isFull g = 
+    | isFull g =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ setAvailableSize (30, 5) 
+        $ setAvailableSize (30, 5)
         $ padAll 1
         $ str "Incorrect. Keep trying."
-    | otherwise = 
+    | otherwise =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
-        $ setAvailableSize (30, 5) 
+        $ setAvailableSize (30, 5)
         $ padAll 1
         $ str "Incomplete             "
 
@@ -370,11 +366,11 @@ getChoice =
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
 drawFileBrowser fb =
     [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [
-                                                                    str "-------------", 
+                                                                    str "-------------",
                                                                     str "Help",
-                                                                    str "-------------",  
-                                                                    str "Select file: Enter/SpaceBar", 
-                                                                    str "Navigate: Up/Down arrows", 
+                                                                    str "-------------",
+                                                                    str "Select file: Enter/SpaceBar",
+                                                                    str "Navigate: Up/Down arrows",
                                                                     str "Go back: q"])]
 
 --Filters out directories from the file browser
@@ -386,7 +382,7 @@ fileTypeFilter =
 fileBrowser :: IO (FileBrowser Name)
 fileBrowser =
     newFileBrowser selectNonDirectories () (Just "Puzzles")
-    
+
 {-  emptyGame
     Generates an empty game. 
     RETURNS: A game with an empty grid and a focused cell at coordinates (5,5).
