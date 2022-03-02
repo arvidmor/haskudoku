@@ -304,7 +304,8 @@ drawHelp =
     withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: Q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
+    $ padAll 1
+    $ str "Navigate:       ↑ ↓ ← →" <=> str "Exit:           Q" <=> str "Insert number:  1-9" <=> str "Toggle note:    Shift + 1-9"<=> str "Remove number:  Del/Backspace"
 
 {- drawStatus g
 Creates a widget that displays the current status of the game depending on
@@ -319,22 +320,22 @@ drawStatus g
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ withAttr completeAttr
-        $ str "          CORRECT!        "
+        $ withAttr completeAttr 
+        $ str "            CORRECT!          "
     | isFull g =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr incorrectAttr
-        $ str "  Incorrect. Keep trying  "
+        $ str "    Incorrect. Keep trying    "
     | otherwise =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr incompleteAttr
-        $ str "        Incomplete        "
+        $ str "          Incomplete          "
 
 {- drawMenu dialog
 Renders the main menu
