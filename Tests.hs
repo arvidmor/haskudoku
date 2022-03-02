@@ -15,3 +15,9 @@ test1 = TestCase $ assertEqual "step" (emptyGame {focusedCell = (1, 1)}) (step T
 
 --Toggling a note on and off gives an empty cell again
 test2 = TestCase $ assertEqual "toggleNote" (grid emptyGame) (grid (toggleNote 1 (5, 5) $ toggleNote 1 (5, 5) emptyGame))
+
+test3 = TestCase $ assertEqual "legalSubgrid" False (legalInSubGrid (Input 1 (5,5)) (listSubGrid (getCoordFromCell (Input 1 (5,5)))) (insert (Input 1 (4,5)) emptyGame))
+
+tests = TestList [test1, test2, test3]
+
+performTests = runTestTT tests
