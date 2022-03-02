@@ -298,7 +298,7 @@ drawHelp =
     withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
+    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: Q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
 {- drawStatus g
 Creates a widget that displays the current status of the game depending on
@@ -366,7 +366,7 @@ drawFileBrowser fb =
                                                                     str "━━━━━━━━━━━━━━━━━━━━━━━━━━━",
                                                                     str "Select file: Enter",
                                                                     str "Navigate:    Up/Down arrows",
-                                                                    str "Go back:     q"])]
+                                                                    str "Go back:     Q"])]
 
 --Used with setFileBrowserEntryFilter to filter out directories from the file browser
 fileTypeFilter :: Maybe (FileInfo -> Bool)

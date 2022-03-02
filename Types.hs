@@ -30,7 +30,7 @@ type Coord = (Int, Int)    --(Row index, Column index)
 {- Indicating direction when navigating the grid.
 Up represents moving upwards in the grid.
 Down represents moving downwards in the grid.
-Left represents movin to the left in the grid.
+Left represents moving to the left in the grid.
 Right represents moving to the right in the grid.
 -}
 data Direction  = Up | Down | Left | Right  deriving (Show, Eq)
