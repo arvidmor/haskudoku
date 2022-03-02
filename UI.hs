@@ -35,6 +35,9 @@ focusedNoteAttr     = attrName "FocusedNote"
 focusedIllegalAttr  = attrName "FocusedIllegal"
 defaultAttr         = attrName "Default"
 logoAttr            = attrName "Logo"
+incompleteAttr      = attrName "Incomplete"
+incorrectAttr       = attrName "Incorrect"
+completeAttr        = attrName "Complete"
 
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
@@ -47,7 +50,10 @@ gameAttrs = attrMap defAttr [
     (illegalAttr, brightBlue `on` red),
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
-    (focusedIllegalAttr, brightBlue `on` magenta)
+    (focusedIllegalAttr, brightBlue `on` magenta),
+    (incompleteAttr, fg yellow),
+    (incorrectAttr, fg red),
+    (completeAttr, fg brightGreen)
     ]
 menuAttrs = attrMap defAttr [
     (buttonSelectedAttr, bg brightBlack),
@@ -313,19 +319,22 @@ drawStatus g
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ str "CORRECT! Well done!    "
+        $ withAttr completeAttr
+        $ str "          CORRECT!        "
     | isFull g =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ str "Incorrect. Keep trying."
+        $ withAttr incorrectAttr
+        $ str "  Incorrect. Keep trying  "
     | otherwise =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ str "Incomplete             "
+        $ withAttr incompleteAttr
+        $ str "        Incomplete        "
 
 {- drawMenu dialog
 Renders the main menu
