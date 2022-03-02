@@ -52,5 +52,6 @@ Saves a gamestate to any file located in the directory "puzzles"
 saveFileLoop :: Game -> IO ()
 saveFileLoop game = do 
     putStr "Filename: "
+    hFlush stdout
     fileName <- getLine
     saveGrid game ("Puzzles/"++fileName)
