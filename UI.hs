@@ -36,6 +36,9 @@ focusedIllegalAttr  = attrName "FocusedIllegal"
 incompleteAttr      = attrName "Unfinished"
 defaultAttr         = attrName "Default"
 logoAttr            = attrName "Logo"
+incompleteAttr      = attrName "Incomplete"
+incorrectAttr       = attrName "Incorrect"
+completeAttr        = attrName "Complete"
 
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
@@ -49,7 +52,13 @@ gameAttrs = attrMap defAttr [
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
     (focusedIllegalAttr, brightBlue `on` magenta),
+<<<<<<< HEAD
     (incompleteAttr, fg red )
+=======
+    (incompleteAttr, fg yellow),
+    (incorrectAttr, fg red),
+    (completeAttr, fg brightGreen)
+>>>>>>> 429e505628d2c649fe2bc983e4a350d466ad1296
     ]
 menuAttrs = attrMap defAttr [
     (buttonSelectedAttr, bg brightBlack),
@@ -313,7 +322,8 @@ drawHelp =
     withBorderStyle unicodeRounded
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
-    $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: Q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
+    $ padAll 1
+    $ str "Navigate:       ↑ ↓ ← →" <=> str "Exit:           Q" <=> str "Insert number:  1-9" <=> str "Toggle note:    Shift + 1-9"<=> str "Remove number:  Del/Backspace"
 
 
 drawHelpEditor :: Widget Name
@@ -336,20 +346,22 @@ drawStatus g
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ str "CORRECT! Well done!    "
+        $ withAttr completeAttr 
+        $ str "            CORRECT!          "
     | isFull g =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
-        $ str "Incorrect. Keep trying."
+        $ withAttr incorrectAttr
+        $ str "    Incorrect. Keep trying    "
     | otherwise =
         withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr incompleteAttr
-        $ str "Incomplete             "
+        $ str "          Incomplete          "
 
 {- drawMenu dialog
 Renders the main menu
