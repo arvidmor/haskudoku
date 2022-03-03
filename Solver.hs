@@ -53,7 +53,7 @@ Checks if i exists on the row r.
 -}
 legalInRow :: Cell -> Game -> Bool
 legalInRow (Empty _) _           = True
-legalInRow (Note _ _) _           = True
+legalInRow (Note _ _) _          = True
 legalInRow (Lock i (r, c)) game  = checkRow (Input i (r, c)) 1 game
 legalInRow (Input i (r, c)) game = checkRow (Input i (r, c)) 1 game
 

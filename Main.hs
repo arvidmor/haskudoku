@@ -18,12 +18,26 @@ main = do
                 (file:files)  -> do 
                         gameState <- loadGrid ("Puzzles/" ++ fileInfoFilename file)
                         endGame <- defaultMain gameApp gameState
-                        return ()
+                        saveYN <- defaultMain saveMenuApp saveDialog
+                        case getChoice saveYN of 
+                            Just 0  -> do 
+                                       saveFileLoop endGame
+                                       main
+                            Just 1  -> main
+                            Nothing -> main
+                            _       -> main
                 []      -> main
         Just 1  -> do 
             endGame <- defaultMain editorApp emptyGame
-            saveFileLoop endGame
-            return ()
+            saveYN <- defaultMain saveMenuApp saveDialog
+            case getChoice saveYN of 
+                Just 0  -> do 
+                        saveFileLoop endGame
+                        main
+                Just 1  -> main
+                Nothing -> return ()
+                _       -> return ()
+            
         Just 2  -> do
             putStrLn $ unlines
                 ["Load: Loads a previously saved game", 

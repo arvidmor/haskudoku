@@ -24,7 +24,7 @@ import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
 
 -- ATTRIBUTES
-lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr :: AttrName
+lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr, incompleteAttr :: AttrName
 lockAttr            = attrName "Lock"
 inputAttr           = attrName "Input"
 noteAttr            = attrName "Note"
@@ -33,6 +33,7 @@ illegalAttr         = attrName "Illegal"
 focusedInputAttr    = attrName "FocusedInput"
 focusedNoteAttr     = attrName "FocusedNote"
 focusedIllegalAttr  = attrName "FocusedIllegal"
+incompleteAttr      = attrName "Unfinished"
 defaultAttr         = attrName "Default"
 logoAttr            = attrName "Logo"
 
@@ -47,7 +48,8 @@ gameAttrs = attrMap defAttr [
     (illegalAttr, brightBlue `on` red),
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
-    (focusedIllegalAttr, brightBlue `on` magenta)
+    (focusedIllegalAttr, brightBlue `on` magenta),
+    (incompleteAttr, fg red )
     ]
 menuAttrs = attrMap defAttr [
     (buttonSelectedAttr, bg brightBlack),
@@ -76,6 +78,15 @@ menuApp = App {
     appAttrMap      = const menuAttrs
 }
 
+saveMenuApp :: App (Dialog Int) a Name
+saveMenuApp = App {
+    appDraw         = drawSaveMenu,
+    appChooseCursor = showFirstCursor,
+    appHandleEvent  = handleEventMenu,
+    appStartEvent   = return,
+    appAttrMap      = const menuAttrs
+}
+
 fileBrowserApp :: App (FileBrowser Name) a Name
 fileBrowserApp = App {
     appDraw         = drawFileBrowser,
@@ -87,7 +98,7 @@ fileBrowserApp = App {
 
 editorApp :: App Game a Name
 editorApp = App {
-    appDraw         = drawGame,
+    appDraw         = drawEditor,
     appChooseCursor = neverShowCursor,
     appHandleEvent  = handleEventEditor,
     appStartEvent   = return,
@@ -201,8 +212,12 @@ handleEventFileBrowser fb _ =
 --DRAWING FUNCTIONS
 --Composite of all widgets in game
 drawGame :: Game -> [Widget Name]
-drawGame g =
+drawGame g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawHelp <=> drawStatus g)]
+
+drawEditor :: Game -> [Widget Name]
+drawEditor g = 
+    [center $ padRight (Pad 2) (drawGrid g) <+> drawHelpEditor]
 
 {- highlightCursor cell g
 Changes the background color of a cell if it's at the current cursor position
@@ -300,6 +315,14 @@ drawHelp =
     $ vLimitPercent 50
     $ str "Navigate: \n ↑ ↓ ← →" <=> str "Exit: Q" <=> str "Insert number: 1-9" <=> str "Insert note: Shift + 1-9"<=> str "Remove number: Del/Backspace"
 
+
+drawHelpEditor :: Widget Name
+drawHelpEditor =
+    withBorderStyle unicodeRounded
+    $ borderWithLabel (str "Help")
+    $ vLimitPercent 50
+    $ str "Navigate: ↑ ↓ ← →" <=> str "Exit: Q" <=> str "Insert number: 1-9" <=> str "Remove number: Del/Backspace"
+
 {- drawStatus g
 Creates a widget that displays the current status of the game depending on
 whether the grid is full, and if so if the solution is correct.  
@@ -321,10 +344,11 @@ drawStatus g
         $ padAll 1
         $ str "Incorrect. Keep trying."
     | otherwise =
-         withBorderStyle unicodeRounded
+        withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
+        $ withAttr incompleteAttr
         $ str "Incomplete             "
 
 {- drawMenu dialog
@@ -334,6 +358,24 @@ Renders the main menu
 drawMenu :: Dialog Int -> [Widget Name]
 drawMenu d =
     [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
+
+drawSaveMenu :: Dialog Int -> [Widget Name]
+drawSaveMenu d =
+    [renderDialog d (center $ str "Do you want to save the game?")]
+
+--Defines the options on the main menu
+menuDialog :: Dialog Int
+menuDialog =
+    dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
+
+saveDialog :: Dialog Int
+saveDialog =
+    dialog Nothing (Just (1, [("Yes", 0), ("No", 1)])) 100
+
+--Retrieves the number corresponding to the choice in a dialog
+getChoice :: Dialog Int -> Maybe Int
+getChoice =
+    dialogSelection
 
 --Renders the haskudoku logo
 haskudokuLogo :: Widget Name
@@ -346,16 +388,6 @@ haskudokuLogo =
   , str "| | | | (_| \\__ \\   <| |_| | (_| | (_) |   <| |_| |"
   , str "\\_| |_/\\__,_|___/_|\\_\\\\__,_|\\__,_|\\___/|_|\\_\\\\__,_|"
     ]
-
---Defines the options on the main menu
-menuDialog :: Dialog Int
-menuDialog =
-    dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
-
---Retrieves the number corresponding to the choice in a dialog
-getChoice :: Dialog Int -> Maybe Int
-getChoice =
-    dialogSelection
 
 --Renders the file browser along with a help section
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
