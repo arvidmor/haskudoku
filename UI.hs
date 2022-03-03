@@ -52,13 +52,10 @@ gameAttrs = attrMap defAttr [
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
     (focusedIllegalAttr, brightBlue `on` magenta),
-<<<<<<< HEAD
-    (incompleteAttr, fg red )
-=======
     (incompleteAttr, fg yellow),
     (incorrectAttr, fg red),
     (completeAttr, fg brightGreen)
->>>>>>> 429e505628d2c649fe2bc983e4a350d466ad1296
+
     ]
 menuAttrs = attrMap defAttr [
     (buttonSelectedAttr, bg brightBlack),
