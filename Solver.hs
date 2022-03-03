@@ -17,6 +17,7 @@ legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
 legalInSubGrid (Empty _) _ _                              = True
 legalInSubGrid (Note _ _) _ _                             = True
+legalInSubGrid (Lock i coord) lst game                         = legalInSubGrid (Input i coord) lst game
 legalInSubGrid (Input i coord) lst@(x:xs) game
     | coord == x = legalInSubGrid (Input i coord) xs game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
@@ -65,11 +66,11 @@ Checks if (Input i) is equal to any of the cells on the row x.
 -}
 checkRow :: Cell -> Int -> Game -> Bool
 checkRow (Input i (r, c)) acc game
-    | 9 < acc                                         = True
-    | getElem r acc (grid game) == Empty (r, acc)       = checkRow (Input i (r, c)) (acc + 1) game
-    | (r, c) == getCoordFromCell (getElem r acc (grid game)) = checkRow (Input i (r, c)) (acc + 1) game -- if compared with self, move on
-    | i == getIntFromCell (getElem r acc (grid game)) = False
-    | otherwise                                       = checkRow (Input i (r, c)) (acc + 1) game
+    | 9 < acc                                                   = True
+    | getElem r acc (grid game) == Empty (r, acc)               = checkRow (Input i (r, c)) (acc + 1) game
+    | (r, c) == getCoordFromCell (getElem r acc (grid game))    = checkRow (Input i (r, c)) (acc + 1) game -- if compared with self, move on
+    | i == getIntFromCell (getElem r acc (grid game))           = False
+    | otherwise                                                 = checkRow (Input i (r, c)) (acc + 1) game
 
 --Check if a cell is legal
 legalInput :: Cell -> Game -> Bool

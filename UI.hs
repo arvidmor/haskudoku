@@ -24,12 +24,14 @@ import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
 
 -- ATTRIBUTES
-lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr, logoAttr, incompleteAttr :: AttrName
+lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr :: AttrName
+logoAttr, incompleteAttr, incorrectAttr, completeAttr, illegalLockAttr :: AttrName
 lockAttr            = attrName "Lock"
 inputAttr           = attrName "Input"
 noteAttr            = attrName "Note"
 focusedAttr         = attrName "Focused"
 illegalAttr         = attrName "Illegal"
+illegalLockAttr     = attrName "IllegalLock"
 focusedInputAttr    = attrName "FocusedInput"
 focusedNoteAttr     = attrName "FocusedNote"
 focusedIllegalAttr  = attrName "FocusedIllegal"
@@ -38,6 +40,7 @@ logoAttr            = attrName "Logo"
 incompleteAttr      = attrName "Incomplete"
 incorrectAttr       = attrName "Incorrect"
 completeAttr        = attrName "Complete"
+
 
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
@@ -48,6 +51,7 @@ gameAttrs = attrMap defAttr [
     (noteAttr, fg brightGreen),
     (focusedAttr, bg brightBlack),
     (illegalAttr, brightBlue `on` red),
+    (illegalLockAttr, white `on` red),
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
     (focusedIllegalAttr, brightBlue `on` magenta),
@@ -257,8 +261,9 @@ drawCell cell game =
     let x = getIntFromCell cell in
     let filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       " in
     case cell of
-        (Lock x coord)  ->
-            filledCell
+        (Lock x coord)  ->if not (legalInput cell game) then
+                                forceAttr illegalLockAttr filledCell
+                            else filledCell
         (Input x coord) ->  if not (legalInput cell game) then
                                 forceAttr illegalAttr filledCell
                             else filledCell
