@@ -348,21 +348,24 @@ drawStatus g
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr completeAttr 
-        $ str "            CORRECT!          "
+        $ center
+        $ str "CORRECT!"
     | isFull g =
          withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr incorrectAttr
-        $ str "    Incorrect. Keep trying    "
+        $ center
+        $ str "Incorrect. Keep trying"
     | otherwise =
         withBorderStyle unicodeRounded
         $ borderWithLabel (str "Status")
         $ setAvailableSize (30, 5)
         $ padAll 1
         $ withAttr incompleteAttr
-        $ str "          Incomplete          "
+        $ center
+        $ str "Incomplete"
 
 {- drawMenu dialog
 Renders the main menu
