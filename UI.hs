@@ -282,7 +282,7 @@ drawCell cell game =
     let x = getIntFromCell cell in
     let filledCell = drawBigNumber x in
     case cell of
-        (Lock x coord)  ->if not (legalInput cell game) then
+        (Lock x coord)  ->  if not (legalInput cell game) then
                                 forceAttr illegalLockAttr filledCell
                             else filledCell
         (Input x coord) ->  if not (legalInput cell game) then
