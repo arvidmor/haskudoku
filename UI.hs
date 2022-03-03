@@ -374,7 +374,7 @@ drawSaveMenu d =
 --Defines the options on the main menu
 menuDialog :: Dialog Int
 menuDialog =
-    dialog Nothing (Just (0, [("Load", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
+    dialog Nothing (Just (0, [("Play", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
 saveDialog :: Dialog Int
 saveDialog =
