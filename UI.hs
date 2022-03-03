@@ -280,7 +280,7 @@ Creates a widget from a cell value and game state. Colours the background red if
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
     let x = getIntFromCell cell in
-    let filledCell = str "       " <=> str ("   " ++ show x ++ "   ") <=> str "       " in
+    let filledCell = drawBigNumber x in
     case cell of
         (Lock x coord)  ->if not (legalInput cell game) then
                                 forceAttr illegalLockAttr filledCell
@@ -295,6 +295,39 @@ drawCell cell game =
             $ vBox
             $ map (hBox . (map str . (" " :))) (chunksOf 3 xs')
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
+
+drawBigNumber :: Int -> Widget Name
+drawBigNumber i = 
+    case i of 
+        1   -> vBox [str "  ╔╗   ", 
+                     str "   ║   ", 
+                     str "  ═╩═  "]
+        2   -> vBox [str "  ╔═╗  ", 
+                     str "  ╔═╝  ",
+                     str "  ╚══  "]
+        3   -> vBox [str "  ══╗  ", 
+                     str "  ══╣  ",
+                     str "  ══╝  "]
+        4   -> vBox [str "  ╥ ╥  ", 
+                     str "  ╚═╣  ",
+                     str "    ╨  "]
+        5   -> vBox [str "  ╔══  ", 
+                     str "  ╚═╗  ",
+                     str "  ══╝  "]
+        6   -> vBox [str "  ╔══  ", 
+                     str "  ╠═╗  ",
+                     str "  ╚═╝  "]
+        7   -> vBox [str "  ══╗  ", 
+                     str "    ║  ",
+                     str "    ╨  "]
+        8   -> vBox [str "  ╔═╗  ", 
+                     str "  ╠═╣  ",
+                     str "  ╚═╝  "]
+        9   -> vBox [str "  ╔═╗  ", 
+                     str "  ╚═╣  ",
+                     str "    ╨  "]
+        _   -> str "       " <=> str "       " <=> str "       "
+               
 
 {- drawBox n g
 Makes a Table widget from the cells in box n of game state
