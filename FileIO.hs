@@ -1,10 +1,8 @@
 module FileIO where
 
-import Grid
-import Types
-import UI
+import Types (Game(..))
 import Data.Matrix (fromLists, toLists)
-import System.IO
+import System.IO (hFlush, stdout)
 
 
 --File IO by Evan Relf, with some refactoring for our implementation of the grid

@@ -1,7 +1,7 @@
 module Grid where
-import Types
-import Solver
-import Data.Matrix
+import Types (Game(..), Direction(..), Coord, Grid, Cell(..))
+import Solver (getNotesFromCell)
+import Data.Matrix (getElem, matrix, setElem)
 import Prelude hiding (Right, Left)
 
 newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))

@@ -6,7 +6,7 @@ import Solver
 import Types
 import UI
 import Test.HUnit
-import Test.QuickCheck
+
 
 --Grid functions
 --Main Solver functions

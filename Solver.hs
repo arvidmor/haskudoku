@@ -1,9 +1,7 @@
 module Solver where
-import Brick hiding (Down, Up, Direction)
-import Data.Matrix
+import Data.Matrix ( getElem, submatrix, toList, Matrix )
 import Prelude hiding (Right, Left)
-import System.IO
-import Types
+import Types (Game(..), Coord, Cell(..))
 
 
 

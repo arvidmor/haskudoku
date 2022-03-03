@@ -1,20 +1,30 @@
 module UI where
 import Solver
-import Types
-import Grid
+    ( box,
+      getCoordFromCell,
+      getIntFromCell,
+      isCompleted,
+      isFull,
+      legalInput )
+import Types (Name, Game(..), Direction(..), Cell(..))
+import Grid (delete, deleteLocked, insert, newSudokuMatrix, step, toggleNote)
 
 import Graphics.Vty hiding (Input)
-import qualified Graphics.Vty
 
 import Brick hiding (Up, Down)
-import Brick.Widgets.Core
-import Brick.Widgets.Center
-import Brick.Widgets.Border
+import Brick.Widgets.Center (center, hCenter)
+import Brick.Widgets.Border (borderWithLabel, hBorderWithLabel, vBorder)
 import Brick.Widgets.Dialog
-import Brick.Widgets.Border.Style
-import qualified Brick as Brick.Types
+    ( buttonAttr,
+      buttonSelectedAttr,
+      dialog,
+      dialogSelection,
+      handleDialogEvent,
+      renderDialog,
+      Dialog)
+import Brick.Widgets.Border.Style (unicode, unicodeBold, unicodeRounded)
 
-import Data.Matrix
+import Data.Matrix (toList)
 import Data.List.Split (chunksOf)
 import Prelude hiding (Right, Left)
 
@@ -22,6 +32,17 @@ import Brick.Widgets.Table ( renderTable, surroundingBorder, table )
 import Brick.Widgets.List (list, renderList, listSelectedAttr)
 import Data.List (intersperse, intercalate)
 import Brick.Widgets.FileBrowser
+    ( actionFileBrowserListNext,
+      actionFileBrowserListPrev,
+      actionFileBrowserSelectEnter,
+      fileBrowserRegularFileAttr,
+      fileTypeMatch,
+      newFileBrowser,
+      renderFileBrowser,
+      selectNonDirectories,
+      FileBrowser,
+      FileInfo,
+      FileType(RegularFile) )
 
 -- ATTRIBUTES
 lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr :: AttrName

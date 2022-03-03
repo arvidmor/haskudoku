@@ -1,6 +1,6 @@
 module Types where
 
-import Data.Matrix
+import Data.Matrix (Matrix)
 
 {- The value of a given cell in a sudoku-grid
 Lock x c represents a number in the grid at the coordinates c that is predefined, and thus immutable.
