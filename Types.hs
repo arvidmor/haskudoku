@@ -43,7 +43,8 @@ complete is a puzzle complete flag.
 data Game = Game {
     grid        :: Grid,
     focusedCell :: Coord,
-    complete    :: Bool
+    complete    :: Bool,
+    previous    :: Maybe Game
 } deriving (Eq, Show)
 
 type Name = ()

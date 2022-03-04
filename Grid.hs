@@ -7,7 +7,15 @@ import Prelude hiding (Right, Left)
 newSudokuMatrix = matrix 9 9 (\(r, c) -> Empty (r, c))
 
 --GRID OPERATIONS
-
+{- undo game
+Reverts the latest operation on current game state.
+    RETURNS:    if previous gamestate == Nothing then game 
+                else game where grid == previous game, and previous == previous (previous game)
+-}
+undo :: Game -> Game
+undo game = case previous game of 
+    Nothing     -> game
+    Just pGame  -> game {grid = grid pGame, previous = previous pGame}
 
 {- isLocked grid coord 
 Checks if a cell in a grid is Locked

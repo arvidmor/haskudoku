@@ -7,7 +7,7 @@ import Solver
       isFull,
       legalInput )
 import Types (Name, Game(..), Direction(..), Cell(..))
-import Grid (delete, deleteLocked, insert, newSudokuMatrix, step, toggleNote)
+import Grid (delete, deleteLocked, insert, newSudokuMatrix, step, toggleNote, undo)
 
 import Graphics.Vty hiding (Input)
 
@@ -161,27 +161,28 @@ handleEventGame g (VtyEvent (EvKey key [])) =
             KLeft       -> step Left g
             KRight      -> step Right g
             --Input and remove numbers
-            (KChar '1') -> insert (Input 1 coord) g
-            (KChar '2') -> insert (Input 2 coord) g
-            (KChar '3') -> insert (Input 3 coord) g
-            (KChar '4') -> insert (Input 4 coord) g
-            (KChar '5') -> insert (Input 5 coord) g
-            (KChar '6') -> insert (Input 6 coord) g
-            (KChar '7') -> insert (Input 7 coord) g
-            (KChar '8') -> insert (Input 8 coord) g
-            (KChar '9') -> insert (Input 9 coord) g
+            (KChar '1') -> insert (Input 1 coord) g {previous = Just g}
+            (KChar '2') -> insert (Input 2 coord) g {previous = Just g}
+            (KChar '3') -> insert (Input 3 coord) g {previous = Just g}
+            (KChar '4') -> insert (Input 4 coord) g {previous = Just g}
+            (KChar '5') -> insert (Input 5 coord) g {previous = Just g}
+            (KChar '6') -> insert (Input 6 coord) g {previous = Just g}
+            (KChar '7') -> insert (Input 7 coord) g {previous = Just g}
+            (KChar '8') -> insert (Input 8 coord) g {previous = Just g}
+            (KChar '9') -> insert (Input 9 coord) g {previous = Just g}
+            (KChar 'u') -> undo g
             KDel        -> delete coord g
             KBS         -> delete coord g
             --Toggle notes
-            (KChar '!') -> toggleNote 1 coord g
-            (KChar '"') -> toggleNote 2 coord g
-            (KChar '#') -> toggleNote 3 coord g
-            (KChar '¤') -> toggleNote 4 coord g
-            (KChar '%') -> toggleNote 5 coord g
-            (KChar '&') -> toggleNote 6 coord g
-            (KChar '/') -> toggleNote 7 coord g
-            (KChar '(') -> toggleNote 8 coord g
-            (KChar ')') -> toggleNote 9 coord g
+            (KChar '!') -> toggleNote 1 coord g {previous = Just g}
+            (KChar '"') -> toggleNote 2 coord g {previous = Just g}
+            (KChar '#') -> toggleNote 3 coord g {previous = Just g}
+            (KChar '¤') -> toggleNote 4 coord g {previous = Just g}
+            (KChar '%') -> toggleNote 5 coord g {previous = Just g}
+            (KChar '&') -> toggleNote 6 coord g {previous = Just g}
+            (KChar '/') -> toggleNote 7 coord g {previous = Just g}
+            (KChar '(') -> toggleNote 8 coord g {previous = Just g}
+            (KChar ')') -> toggleNote 9 coord g {previous = Just g}
             _           -> g
 --Everything else
 handleEventGame g _ =
@@ -202,17 +203,18 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
             KLeft       -> step Left g
             KRight      -> step Right  g
             --Input and remove numbers
-            (KChar '1') -> insert (Lock 1 (focusedCell g)) g
-            (KChar '2') -> insert (Lock 2 (focusedCell g)) g
-            (KChar '3') -> insert (Lock 3 (focusedCell g)) g
-            (KChar '4') -> insert (Lock 4 (focusedCell g)) g
-            (KChar '5') -> insert (Lock 5 (focusedCell g)) g
-            (KChar '6') -> insert (Lock 6 (focusedCell g)) g
-            (KChar '7') -> insert (Lock 7 (focusedCell g)) g
-            (KChar '8') -> insert (Lock 8 (focusedCell g)) g
-            (KChar '9') -> insert (Lock 9 (focusedCell g)) g
-            KDel        -> deleteLocked (focusedCell g) g
-            KBS         -> deleteLocked (focusedCell g) g
+            (KChar '1') -> insert (Lock 1 (focusedCell g)) g {previous = Just g}
+            (KChar '2') -> insert (Lock 2 (focusedCell g)) g {previous = Just g}
+            (KChar '3') -> insert (Lock 3 (focusedCell g)) g {previous = Just g}
+            (KChar '4') -> insert (Lock 4 (focusedCell g)) g {previous = Just g}
+            (KChar '5') -> insert (Lock 5 (focusedCell g)) g {previous = Just g}
+            (KChar '6') -> insert (Lock 6 (focusedCell g)) g {previous = Just g}
+            (KChar '7') -> insert (Lock 7 (focusedCell g)) g {previous = Just g}
+            (KChar '8') -> insert (Lock 8 (focusedCell g)) g {previous = Just g}
+            (KChar '9') -> insert (Lock 9 (focusedCell g)) g {previous = Just g}
+            (KChar 'u') -> undo g
+            KDel        -> deleteLocked (focusedCell g) g {previous = Just g}
+            KBS         -> deleteLocked (focusedCell g) g {previous = Just g}
             _           -> g
 --Everything else
 handleEventEditor g _ =
@@ -489,6 +491,7 @@ emptyGame :: Game
 emptyGame = Game {
     grid = newSudokuMatrix,
     focusedCell = (5, 5),
-    complete = False
+    complete = False,
+    previous = Nothing
 }
 

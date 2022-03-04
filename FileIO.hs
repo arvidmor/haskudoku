@@ -13,7 +13,7 @@ Takes a string and transforms the string into a game.
     EXAMPLES: -
 -}
 importGrid :: String -> Game
-importGrid = (\g -> Game (fromLists g) (5, 5) False) . read
+importGrid = (\g -> Game (fromLists g) (5, 5) False Nothing) . read
 
 {- exportGrid game
 Exports game to a list-representation of game.
