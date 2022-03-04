@@ -13,7 +13,7 @@ import UI
       saveMenuApp )
 import FileIO (loadGrid, saveFileLoop)
 import Brick (defaultMain)
-import Brick.Widgets.FileBrowser(fileBrowserSelection, setFileBrowserEntryFilter, FileInfo(fileInfoFilename)) 
+import Brick.Widgets.FileBrowser(fileBrowserSelection, setFileBrowserEntryFilter, FileInfo(fileInfoFilename))
 
 
 
@@ -30,13 +30,10 @@ main = do
                         gameState <- loadGrid ("Puzzles/" ++ fileInfoFilename file)
                         endGame <- defaultMain gameApp gameState
                         saveYN <- defaultMain saveMenuApp saveDialog
-                        case getChoice saveYN of 
-                            Just 0  -> do 
+                        if getChoice saveYN == Just 0 then do 
                                        saveFileLoop endGame
                                        main
-                            Just 1  -> main
-                            Nothing -> main
-                            _       -> main
+                        else  main
                 []      -> main
         Just 1  -> do 
             endGame <- defaultMain editorApp emptyGame
