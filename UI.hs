@@ -380,7 +380,12 @@ drawHelp =
     $ borderWithLabel (str "Help")
     $ vLimitPercent 50
     $ padAll 1
-    $ str "Navigate:       ↑ ↓ ← →" <=> str "Exit:           Q" <=> str "Insert number:  1-9" <=> str "Toggle note:    Shift + 1-9"<=> str "Remove number:  Del/Backspace"
+    $ str "Navigate:       ↑ ↓ ← →" <=> 
+      str "Exit:           Q" <=> 
+      str "Insert number:  1-9" <=> 
+      str "Toggle note:    Shift + 1-9" <=> 
+      str "Undo:           u"<=> 
+      str "Remove number:  Del/Backspace"
 
 
 drawHelpEditor :: Widget Name
