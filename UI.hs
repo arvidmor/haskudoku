@@ -171,8 +171,8 @@ handleEventGame g (VtyEvent (EvKey key [])) =
             (KChar '8') -> insert (Input 8 coord) g {previous = Just g}
             (KChar '9') -> insert (Input 9 coord) g {previous = Just g}
             (KChar 'u') -> undo g
-            KDel        -> delete coord g
-            KBS         -> delete coord g
+            KDel        -> delete coord g {previous = Just g}
+            KBS         -> delete coord g {previous = Just g}
             --Toggle notes
             (KChar '!') -> toggleNote 1 coord g {previous = Just g}
             (KChar '"') -> toggleNote 2 coord g {previous = Just g}
