@@ -211,18 +211,18 @@ Helper-function for checkAllSubGridsAux. Checks if each cell in a specific box i
 -}
 checkSubGrid :: [Cell] -> Bool
 checkSubGrid lst
-    | length (uniq [] lst) == 9 = True
-    | otherwise = False
+    | length (unique [] lst) == 9   = True
+    | otherwise                     = False
 
-{- uniq [] (x:xs)
+{- unique [] (x:xs)
 Removes duplicates from a list so that each item only appears once.
     RETURNS: a list where each item only appears once.
-    EXAMPLES: uniq [1,1,1,3,4,5,5,6] = [1,3,4,5,6]
+    EXAMPLES: unique [1,1,1,3,4,5,5,6] = [1,3,4,5,6]
 -}
-uniq :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
-uniq x [] = x
-uniq [] (a:xs) = uniq [a] xs
-uniq x (a:xs) = if a `elem` x then uniq x xs else uniq (a:x) xs
+unique :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
+unique x []         = x
+unique [] (a:xs)    = unique [a] xs
+unique x (a:xs)     = if a `elem` x then unique x xs else unique (a:x) xs
 
 {- isFull game
 Checks if the game grid is filled (contains no comments or empty cells)

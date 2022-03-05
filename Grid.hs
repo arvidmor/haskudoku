@@ -57,7 +57,7 @@ insert (Input i (r, c)) game
     | isLocked (grid game) (r, c)   = game
     | otherwise                     = game {grid = setElem (Input i (r, c)) (r, c) (grid game)}
 --VARIANT:  length xs
-insert (Note [] (r, c)) game        = game
+insert (Note [] (r, c))     game    = game
 insert (Note (x:xs) (r, c)) game    = insert (Note xs (r, c)) (toggleNote x (r, c) game)
 
 {- toggleNote num (r, c) game
@@ -66,16 +66,15 @@ Inserts a note into the grid of a game state if the value at that position is no
                 r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
     RETURNS:    game with (Note num (r, c)) toggled in the grid of game
 -}
-
 toggleNote :: Int -> Coord -> Game -> Game
 toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
     case isNote (grid game) (r, c) of
-    0    -> game
-    1    -> game {grid = setElem (Note [num] (r, c)) (r, c) (grid game)}
+    0                       -> game
+    1                       -> game {grid = setElem (Note [num] (r, c)) (r, c) (grid game)}
     2   | [num] == notes    -> game {grid = setElem (Empty (r, c)) (r, c) (grid game)}
         | num `elem` notes  -> game {grid = setElem (Note (filter (num /=) notes) (r, c)) (r, c) (grid game)}
         | otherwise         -> game {grid = setElem (Note (num : notes) (r, c)) (r, c) (grid game)}
-    _    -> game
+    _                       -> game
 
 {- delete (r, c) game
 Deletes a value from position (r, c) in grid if the cell at that position is not locked

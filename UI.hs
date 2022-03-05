@@ -66,29 +66,30 @@ completeAttr        = attrName "Complete"
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
-    (lockAttr, fg white),
-    (defaultAttr, defAttr),
-    (inputAttr, fg brightBlue),
-    (noteAttr, fg brightGreen),
-    (focusedAttr, bg brightBlack),
-    (illegalAttr, brightBlue `on` red),
-    (illegalLockAttr, white `on` red),
-    (focusedInputAttr, brightBlue `on` brightBlack),
-    (focusedNoteAttr, brightGreen `on` brightBlack),
+    (lockAttr,          fg white),
+    (defaultAttr,       defAttr),
+    (inputAttr,         fg brightBlue),
+    (noteAttr,          fg brightGreen),
+    (focusedAttr,       bg brightBlack),
+    (illegalAttr,       brightBlue `on` red),
+    (illegalLockAttr,   white `on` red),
+    (focusedInputAttr,  brightBlue `on` brightBlack),
+    (focusedNoteAttr,   brightGreen `on` brightBlack),
     (focusedIllegalAttr, brightBlue `on` magenta),
-    (incompleteAttr, fg yellow),
-    (incorrectAttr, fg red),
-    (completeAttr, fg brightGreen)
+    (incompleteAttr,    fg yellow),
+    (incorrectAttr,     fg red),
+    (completeAttr,      fg brightGreen)
+    ]
 
-    ]
 menuAttrs = attrMap defAttr [
-    (buttonSelectedAttr, bg brightBlack),
-    (buttonAttr, fg white),
-    (logoAttr, fg green)
+    (buttonSelectedAttr,    bg brightBlack),
+    (buttonAttr,            fg white),
+    (logoAttr,              fg green)
     ]
+
 fileBrowserAttrs = attrMap defAttr [
-    (fileBrowserRegularFileAttr, fg green),
-    (listSelectedAttr, green `on` brightBlack)
+    (fileBrowserRegularFileAttr,    fg green),
+    (listSelectedAttr,              green `on` brightBlack)
     ]
 
 {- App types
@@ -223,7 +224,6 @@ handleEventEditor g _ =
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
 --Navigate and pick option
 handleEventMenu d (VtyEvent (EvKey key [])) =
-
     if key == KEnter then halt d else continue =<< handleDialogEvent (EvKey key []) d
 --Everything else
 handleEventMenu d _ =
@@ -272,7 +272,6 @@ hightlightCursor cell game =
                 (Lock _ coord)  -> lockAttr
                 (Note _ coord)  -> noteAttr
                 (Empty coord)   -> defaultAttr)
-
 
 {- drawCell cell g
 Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
@@ -371,7 +370,6 @@ drawGrid g =
     lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
     outerVBorder    = setAvailableSize (1, 11) vBorder
 
-
 --Info widget
 --Defines a widget with instructions for how to play the game.
 drawHelp :: Widget Name
@@ -384,7 +382,7 @@ drawHelp =
       str "Exit:           Q" <=> 
       str "Insert number:  1-9" <=> 
       str "Toggle note:    Shift + 1-9" <=> 
-      str "Undo:           u"<=> 
+      str "Undo:           U"<=> 
       str "Remove number:  Del/Backspace"
 
 
