@@ -54,6 +54,8 @@ focusedAttr         = attrName "Focused"
 illegalAttr         = attrName "Illegal"
 illegalLockAttr     = attrName "IllegalLock"
 focusedInputAttr    = attrName "FocusedInput"
+focusedIllegalInputAttr = attrName "FocusedIllegalInput"
+focusedIllegalLockAttr  = attrName "FocusedIllegalLock"
 focusedNoteAttr     = attrName "FocusedNote"
 focusedIllegalAttr  = attrName "FocusedIllegal"
 defaultAttr         = attrName "Default"
@@ -75,7 +77,8 @@ gameAttrs = attrMap defAttr [
     (illegalLockAttr, white `on` red),
     (focusedInputAttr, brightBlue `on` brightBlack),
     (focusedNoteAttr, brightGreen `on` brightBlack),
-    (focusedIllegalAttr, brightBlue `on` magenta),
+    (focusedIllegalInputAttr, brightBlue `on` rgbColor 255 114 111),
+    (focusedIllegalLockAttr, white `on` rgbColor 255 114 111),
     (incompleteAttr, fg yellow),
     (incorrectAttr, fg red),
     (completeAttr, fg brightGreen)
@@ -262,8 +265,10 @@ hightlightCursor cell game =
         if coord == focusedCell game then
             (\attr -> forceAttr attr (drawCell cell game))
             (case cell of
-                (Input _ coord) -> focusedInputAttr
-                (Lock _ coord)  -> focusedAttr
+                (Input _ coord) | not (legalInput cell game) -> focusedIllegalInputAttr
+                                | otherwise                  -> focusedInputAttr
+                (Lock _ coord)  | not (legalInput cell game) -> focusedIllegalLockAttr
+                                | otherwise                  -> focusedAttr
                 (Note _ coord)  -> focusedNoteAttr
                 (Empty coord)   -> focusedAttr)
         else (\attr -> withAttr attr (drawCell cell game))
