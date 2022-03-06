@@ -68,7 +68,7 @@ Inserts a note into the grid of a game state if the value at that position is no
 -}
 
 toggleNote :: Int -> Coord -> Game -> Game
-toggleNote num (r, c) game = let notes = getNotesFromCell(getElem r c (grid game)) in
+toggleNote num (r, c) game = let notes = getNotesFromCell (getElem r c (grid game)) in
     case isNote (grid game) (r, c) of
     0    -> game
     1    -> game {grid = setElem (Note [num] (r, c)) (r, c) (grid game)}
