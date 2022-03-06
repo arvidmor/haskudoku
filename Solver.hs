@@ -3,8 +3,6 @@ import Data.Matrix ( getElem, submatrix, toList, Matrix )
 import Prelude hiding (Right, Left)
 import Types (Game(..), Coord, Cell(..))
 
-
-
 {- legalInSubGrid (Input i) lst grid
 Checks if i exists inside grid's subgrid lst
     RETURNS: True if i doesn't exist in the subgrid lst, False if i does exist in the subgrid lst.
@@ -15,9 +13,9 @@ legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
 legalInSubGrid (Empty _) _ _                              = True
 legalInSubGrid (Note _ _) _ _                             = True
-legalInSubGrid (Lock i coord) lst game                         = legalInSubGrid (Input i coord) lst game
+legalInSubGrid (Lock i coord) lst game                    = legalInSubGrid (Input i coord) lst game
 legalInSubGrid (Input i coord) lst@(x:xs) game
-    | coord == x = legalInSubGrid (Input i coord) xs game
+    | coord == x                                          = legalInSubGrid (Input i coord) xs game
     | i == getIntFromCell (uncurry getElem x (grid game)) = False
     | otherwise                                           = legalInSubGrid (Input i coord) xs game
 
@@ -82,7 +80,7 @@ Checks if i exists on the column c.
 -}
 legalInCol :: Cell -> Game -> Bool -- Necessary to pattern match for Note here?
 legalInCol (Empty _) _           = True
-legalInCol (Note _ _) _           = True
+legalInCol (Note _ _) _          = True
 legalInCol (Lock i (r, c)) game  = checkCol (Input i (r, c)) 1 game
 legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 
@@ -94,11 +92,11 @@ Checks if (Input i) is equal to any of the cells on the col x.
 -}
 checkCol :: Cell -> Int -> Game -> Bool
 checkCol (Input i (r, c)) acc game
-    | 9 < acc                                         = True
-    | getElem acc c (grid game) == Empty (acc, c)     = checkCol (Input i (r, c)) (acc + 1) game
-    | (r, c) == getCoordFromCell (getElem acc c (grid game)) = checkCol (Input i (r, c)) (acc + 1) game
-    | i == getIntFromCell (getElem acc c (grid game)) = False
-    | otherwise                                       = checkCol (Input i (r, c)) (acc + 1) game
+    | 9 < acc                                                   = True
+    | getElem acc c (grid game) == Empty (acc, c)               = checkCol (Input i (r, c)) (acc + 1) game
+    | (r, c) == getCoordFromCell (getElem acc c (grid game))    = checkCol (Input i (r, c)) (acc + 1) game
+    | i == getIntFromCell (getElem acc c (grid game))           = False
+    | otherwise                                                 = checkCol (Input i (r, c)) (acc + 1) game
 
 --Gets the int from the cell data-type.
 --RETURNS 0 IF THE CELL IS EMPTY OR CONTAINS NOTES
@@ -213,18 +211,18 @@ Helper-function for checkAllSubGridsAux. Checks if each cell in a specific box i
 -}
 checkSubGrid :: [Cell] -> Bool
 checkSubGrid lst
-    | length (uniq [] lst) == 9 = True
-    | otherwise = False
+    | length (unique [] lst) == 9   = True
+    | otherwise                     = False
 
-{- uniq [] (x:xs)
+{- unique [] (x:xs)
 Removes duplicates from a list so that each item only appears once.
     RETURNS: a list where each item only appears once.
-    EXAMPLES: uniq [1,1,1,3,4,5,5,6] = [1,3,4,5,6]
+    EXAMPLES: unique [1,1,1,3,4,5,5,6] = [1,3,4,5,6]
 -}
-uniq :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
-uniq x [] = x
-uniq [] (a:xs) = uniq [a] xs
-uniq x (a:xs) = if a `elem` x then uniq x xs else uniq (a:x) xs
+unique :: Eq a => [a] -> [a] -> [a]                               --From: https://codereview.stackexchange.com/questions/150533/filter-duplicate-elements-in-haskell
+unique x []         = x
+unique [] (a:xs)    = unique [a] xs
+unique x (a:xs)     = if a `elem` x then unique x xs else unique (a:x) xs
 
 {- isFull game
 Checks if the game grid is filled (contains no comments or empty cells)
@@ -245,7 +243,7 @@ checkFull game ((r, c):xs) = case cell of
     (Lock _ _)  -> checkFull game xs
     (Input _ _) -> checkFull game xs
     (Empty _)   -> False
-    where cell = getElem r c (grid game) 
+    where cell  = getElem r c (grid game) 
 
 {- box n game
 Creates a submatrix corresponding to the n'th box of the sudoku-grid
