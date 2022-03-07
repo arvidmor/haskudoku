@@ -439,6 +439,10 @@ drawMenu :: Dialog Int -> [Widget Name]
 drawMenu d =
     [renderDialog d (center $ withAttr logoAttr haskudokuLogo) <+> padLeft (Pad 5) (hLimitPercent 12 (hCenter  $ strWrap "Created by Arvid Morelid, Ida Hellqvist and \nSimon Pislar"))]
 
+{- drawSaveMenu dialog
+Renders the save menu
+    RETURNS: a widget containing the content of the save-menu.
+-}
 drawSaveMenu :: Dialog Int -> [Widget Name]
 drawSaveMenu d =
     [renderDialog d (center $ str "Do you want to save the game?")]
@@ -469,7 +473,11 @@ haskudokuLogo =
   , str "\\_| |_/\\__,_|___/_|\\_\\\\__,_|\\__,_|\\___/|_|\\_\\\\__,_|"
     ]
 
---Renders the file browser along with a help section
+
+{- drawFileBrowser fb
+Renders the file browser along with a help section
+    RETURNS: a widget with the name fb, containing the content of the file browser
+-}
 drawFileBrowser :: FileBrowser Name -> [Widget Name]
 drawFileBrowser fb =
     [renderFileBrowser True fb <=> withBorderStyle unicodeRounded (vBox [
