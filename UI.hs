@@ -64,11 +64,9 @@ incompleteAttr      = attrName "Incomplete"
 incorrectAttr       = attrName "Incorrect"
 completeAttr        = attrName "Complete"
 
-
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
-
     (lockAttr, fg white),
     (defaultAttr, defAttr),
     (inputAttr, fg brightBlue),
@@ -98,11 +96,11 @@ fileBrowserAttrs = attrMap defAttr [
 
 {- App types
 The app data type is what brick uses to decide which functions define the behavior for a given app. 
-    appDraw:        Which function is used to create the widgets displayed 
+    appDraw:         which function is used to create the widgets displayed 
     appChooseCursor: where to place the cursor or which function to define cursor behaviour, if any. 
     appHandleEvent:  which funciton defines the event handling
-    appStartEvent:  An event to run when the app is initialized
-    appAttrMap:     function for of the attribute map for the app 
+    appStartEvent:   an event to run when the app is initialized
+    appAttrMap:      function for of the attribute map for the app 
 -}
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
@@ -151,6 +149,13 @@ gameApp = App {
 
 --EVENT HANDLING
 --Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
+
+{- handleEventGame g e
+Handle keyboard input. Enables navigating the grid, entering numbers as input-cells, 
+entering notes, deleting entered numbers and notes, undoing the latest action and quitting the game.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventGame :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit game
 handleEventGame g (VtyEvent (EvKey (KChar 'q') [])) =
@@ -193,6 +198,12 @@ handleEventGame g (VtyEvent (EvKey key [])) =
 handleEventGame g _ =
     continue g
 
+{- handleEventEditor g e
+Handle keyboard input. Enables navigating the grid, entering numbers as lock-cells, entering notes,
+deleting numbers, undoing the latest action and quitting the game.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit Editor
 handleEventEditor g (VtyEvent (EvKey (KChar 'q') [])) =
@@ -225,6 +236,11 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
 handleEventEditor g _ =
     continue g
 
+{- handleEventMenu d e
+Navigates a dialog based on keyboard input.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
 --Navigate and pick option
 handleEventMenu d (VtyEvent (EvKey key [])) =
@@ -233,6 +249,11 @@ handleEventMenu d (VtyEvent (EvKey key [])) =
 handleEventMenu d _ =
     continue d
 
+{- handleEventFileBrowser fb e
+Navigates a file browser based on keyboard input.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventFileBrowser :: FileBrowser Name -> BrickEvent Name a -> EventM Name (Next (FileBrowser Name))
 handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
     case key of
@@ -246,11 +267,19 @@ handleEventFileBrowser fb _ =
     continue fb
 
 --DRAWING FUNCTIONS
---Composite of all widgets in game
+
+{- drawGame g
+Composites all widgets in g. 
+    RETURNS: A list containing all widgets in g.
+-}
 drawGame :: Game -> [Widget Name]
 drawGame g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawHelp <=> drawStatus g)]
 
+{- drawEditor g
+Composites all widgets in g. 
+    RETURNS: A list containing all widgets in g.
+-}
 drawEditor :: Game -> [Widget Name]
 drawEditor g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> drawHelpEditor]
@@ -282,7 +311,6 @@ hightlightCursor cell game =
 {- drawGrid g
 Composites all 9 boxes of game state into a grid
     RETURNS: A widget containing a grid which consists of all 9 boxes of g.
-    EXAMPLES: -
 -}
 drawGrid :: Game -> Widget Name
 drawGrid g =
@@ -306,7 +334,6 @@ drawGrid g =
 {- drawBox n g
 Makes a Table widget from the cells in box n of game state
     RETURNS: a Table widget from the cells in box n in g.
-    EXAMPLES: -
 -}
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
@@ -322,7 +349,6 @@ drawBox n g =
 {- drawCell cell g
 Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
     RETURNS:    a widget containing a cell value 'cell' from the current game state 'g'
-    EXAMPLES:   -
 -}
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
@@ -335,7 +361,7 @@ drawCell cell game =
         (Input x coord) ->  if not (legalInput cell game) then
                                 forceAttr illegalAttr filledCell
                             else filledCell
-        (Note xs coord) ->
+        (Note xs coord) -> --Note drawing inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
             let f x = if x `elem` xs then show x  ++ " " else "  "  in
             let xs' = map f [1..9] in
             withAttr noteAttr
@@ -343,6 +369,10 @@ drawCell cell game =
             $ map (hBox . (map str . (" " :))) (chunksOf 3 xs')
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
+{- drawBigNumber n
+Creates a widget from a number. 
+    RETURNS:    a widget containing a graphical representation of n.
+-}
 drawBigNumber :: Int -> Widget Name
 drawBigNumber i = 
     case i of 
