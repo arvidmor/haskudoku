@@ -249,6 +249,11 @@ handleEventMenu d (VtyEvent (EvKey key [])) =
 handleEventMenu d _ =
     continue d
 
+{- handleEventFileBrowser fb e
+Navigates a file browser based on keyboard input.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventFileBrowser :: FileBrowser Name -> BrickEvent Name a -> EventM Name (Next (FileBrowser Name))
 handleEventFileBrowser fb (VtyEvent (EvKey key [])) =
     case key of
