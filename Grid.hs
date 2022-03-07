@@ -32,7 +32,6 @@ isLocked g (r, c) = let cell = getElem r c g in
 {- isNote g (r, c)
 Checks which cell-type exists at a specific coordinate in a grid
     RETURNS: The Int value of the cell with coordinate (r, c) in the grid g.
-    EXAMPLES: -
 -}
 isNote :: Grid -> Coord -> Int
 isNote g (r, c) =
@@ -81,7 +80,6 @@ Deletes a value from position (r, c) in grid if the cell at that position is not
     PRE:        r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
     RETURNS:    iff (the cell at (r, c) in the grid of game) == (Lock _ (r, c)) then game
                 else game with (the cell at (r, c)) == Empty (r, c)
-    EXAMPLES: -
 -}
 delete ::  Coord -> Game -> Game
 delete (r, c) game
@@ -92,7 +90,6 @@ delete (r, c) game
 Removes a locked cell from a grid in a game state
     PRE:        r, c <- [1, 2, 3, 4, 5, 6, 7, 8, 9]
     RETURNS:    game with (the cell at (r, c)) == Empty (r, c))
-    EXAMPLES: -
 -}
 deleteLocked ::  Coord -> Game -> Game
 deleteLocked (r, c) game
