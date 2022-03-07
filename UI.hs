@@ -46,7 +46,7 @@ import Brick.Widgets.FileBrowser
 
 -- ATTRIBUTES
 lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr :: AttrName
-logoAttr, incompleteAttr, incorrectAttr, completeAttr, illegalLockAttr :: AttrName
+logoAttr, incompleteAttr, incorrectAttr, completeAttr, illegalLockAttr, focusedIllegalInputAttr, focusedIllegalLockAttr :: AttrName
 lockAttr            = attrName "Lock"
 inputAttr           = attrName "Input"
 noteAttr            = attrName "Note"
