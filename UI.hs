@@ -267,7 +267,11 @@ handleEventFileBrowser fb _ =
     continue fb
 
 --DRAWING FUNCTIONS
---Composite of all widgets in game
+
+{- drawGame g
+Composites all widgets in g. 
+    RETURNS: A widget containing all widgets in g.
+-}
 drawGame :: Game -> [Widget Name]
 drawGame g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawHelp <=> drawStatus g)]
@@ -303,7 +307,6 @@ hightlightCursor cell game =
 {- drawGrid g
 Composites all 9 boxes of game state into a grid
     RETURNS: A widget containing a grid which consists of all 9 boxes of g.
-    EXAMPLES: -
 -}
 drawGrid :: Game -> Widget Name
 drawGrid g =
