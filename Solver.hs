@@ -113,6 +113,7 @@ getCoordFromCell (Lock _ (r, c))    = (r, c)
 getCoordFromCell (Empty (r, c))     = (r, c)
 getCoordFromCell (Note _ (r,c))     = (r, c)
 
+--Gets the notes from a cell
 getNotesFromCell :: Cell -> [Int]
 getNotesFromCell cell =
     case cell of
