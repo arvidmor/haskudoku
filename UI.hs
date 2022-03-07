@@ -343,6 +343,10 @@ drawCell cell game =
             $ map (hBox . (map str . (" " :))) (chunksOf 3 xs')
         (Empty coord)   -> str "       " <=> str "       " <=> str "       "
 
+{- drawBigNumber n
+Creates a widget from a number. 
+    RETURNS:    a widget containing a graphical representation of n.
+-}
 drawBigNumber :: Int -> Widget Name
 drawBigNumber i = 
     case i of 
