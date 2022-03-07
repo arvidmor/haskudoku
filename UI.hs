@@ -441,7 +441,7 @@ drawMenu d =
 
 {- drawSaveMenu dialog
 Renders the save menu
-    RETURNS: a widget containing the content of the save-menu.
+    RETURNS: a widget containing the content of the save-menu, along with the dialog box options dialog.
 -}
 drawSaveMenu :: Dialog Int -> [Widget Name]
 drawSaveMenu d =
