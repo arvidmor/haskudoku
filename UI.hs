@@ -335,7 +335,7 @@ drawCell cell game =
         (Input x coord) ->  if not (legalInput cell game) then
                                 forceAttr illegalAttr filledCell
                             else filledCell
-        (Note xs coord) ->
+        (Note xs coord) -> --Note drawing inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
             let f x = if x `elem` xs then show x  ++ " " else "  "  in
             let xs' = map f [1..9] in
             withAttr noteAttr
