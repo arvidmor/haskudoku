@@ -151,9 +151,10 @@ gameApp = App {
 --Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
 
 {- handleEventGame g e
-Handle keyboard input. Enables navigating the grid, entering numbers, entering notes,
-deleting numbers and notes, undoing an action and quitting the game.
+Handle keyboard input. Enables navigating the grid, entering numbers as input-cells, 
+entering notes, deleting entered numbers and notes, undoing the latest action and quitting the game.
     RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
 -}
 handleEventGame :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit game
@@ -197,6 +198,12 @@ handleEventGame g (VtyEvent (EvKey key [])) =
 handleEventGame g _ =
     continue g
 
+{- handleEventEditor g e
+Handle keyboard input. Enables navigating the grid, entering numbers as lock-cells, entering notes,
+deleting numbers, undoing the latest action and quitting the game.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventEditor :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit Editor
 handleEventEditor g (VtyEvent (EvKey (KChar 'q') [])) =
@@ -229,6 +236,11 @@ handleEventEditor g (VtyEvent (EvKey key [])) =
 handleEventEditor g _ =
     continue g
 
+{- handleEventMenu d e
+Navigates a dialog based on keyboard input.
+    RETURNS: Updated game state based on which key was pressed.
+    SIDE EFFECTS: Reads input from keyboard, reads size of terminal window and modifies game state.
+-}
 handleEventMenu :: Dialog Int -> BrickEvent Name a -> EventM Name (Next (Dialog Int))
 --Navigate and pick option
 handleEventMenu d (VtyEvent (EvKey key [])) =
