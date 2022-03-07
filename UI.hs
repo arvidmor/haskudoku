@@ -270,12 +270,16 @@ handleEventFileBrowser fb _ =
 
 {- drawGame g
 Composites all widgets in g. 
-    RETURNS: A widget containing all widgets in g.
+    RETURNS: A list containing all widgets in g.
 -}
 drawGame :: Game -> [Widget Name]
 drawGame g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> (drawHelp <=> drawStatus g)]
 
+{- drawEditor g
+Composites all widgets in g. 
+    RETURNS: A list containing all widgets in g.
+-}
 drawEditor :: Game -> [Widget Name]
 drawEditor g = 
     [center $ padRight (Pad 2) (drawGrid g) <+> drawHelpEditor]
