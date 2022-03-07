@@ -11,7 +11,7 @@ import UI
       emptyGame,
       saveDialog,
       saveMenuApp )
-import FileIO (loadGrid, saveFileLoop)
+import FileIO (loadGame, saveFileLoop)
 import Brick (defaultMain)
 import Brick.Widgets.FileBrowser(fileBrowserSelection, setFileBrowserEntryFilter, FileInfo(fileInfoFilename))
 
@@ -27,7 +27,7 @@ main = do
             let choice = fileBrowserSelection browserState
             case choice of 
                 (file:files)  -> do 
-                        gameState <- loadGrid ("Puzzles/" ++ fileInfoFilename file)
+                        gameState <- loadGame ("Puzzles/" ++ fileInfoFilename file)
                         endGame <- defaultMain gameApp gameState
                         saveYN <- defaultMain saveMenuApp saveDialog
                         if getChoice saveYN == Just 0 then do 

@@ -23,23 +23,23 @@ Exports game to a list-representation of game.
 exportGrid :: Game -> String
 exportGrid game = show (toLists (grid game))
 
-{- saveGrid game filename
+{- saveGame game filename
 Saves a gamestate to a file
     SIDE-EFFECTS: writes game to the file with the name filename
     RETURNS: Nothing
     EXAMPLES: -
 -}
-saveGrid :: Game -> FilePath -> IO ()
-saveGrid game filename = writeFile filename (exportGrid game)
+saveGame :: Game -> FilePath -> IO ()
+saveGame game filename = writeFile filename (exportGrid game)
 
-{-loadGrid filename
+{-loadGame filename
 Loads the content of a file
     SIDE-EFFECTS: reads a string from a file with the name filename and reads it as a game.
     RETURNS: Nothing
     EXAMPLES: -
 -}
-loadGrid :: FilePath -> IO Game
-loadGrid filename = importGrid <$> readFile filename
+loadGame :: FilePath -> IO Game
+loadGame filename = importGrid <$> readFile filename
 
 {-saveFileLoop game
 Saves a gamestate to any file located in the directory "puzzles"
@@ -52,4 +52,4 @@ saveFileLoop game = do
     putStr "Filename: "
     hFlush stdout
     fileName <- getLine
-    saveGrid game ("Puzzles/"++fileName)
+    saveGame game ("Puzzles/"++fileName)
