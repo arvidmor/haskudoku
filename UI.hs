@@ -279,6 +279,46 @@ hightlightCursor cell game =
                 (Note _ coord)  -> noteAttr
                 (Empty coord)   -> defaultAttr)
 
+{- drawGrid g
+Composites all 9 boxes of game state into a grid
+    RETURNS: A widget containing a grid which consists of all 9 boxes of g.
+    EXAMPLES: -
+-}
+drawGrid :: Game -> Widget Name
+drawGrid g =
+    withBorderStyle unicodeBold
+        $ joinBorders
+        $ upperBorder
+        <=>  vBox [
+          hBox [outerVBorder, drawBox 1 g,  innerVBorder, drawBox 2 g, innerVBorder, drawBox 3 g, outerVBorder]
+        , innerHBorder
+        , hBox [outerVBorder, drawBox 4 g, innerVBorder, drawBox 5 g, innerVBorder,  drawBox 6 g, outerVBorder]
+        , innerHBorder
+        , hBox [outerVBorder, drawBox 7 g, innerVBorder, drawBox 8 g, innerVBorder, drawBox 9 g, outerVBorder]]
+        <=> lowerBorder
+        where
+    innerVBorder    = setAvailableSize (1, 11) $ withBorderStyle unicodeBold vBorder
+    innerHBorder    = setAvailableSize (73, 1) $ hBorderWithLabel (str "┣━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━┫")
+    upperBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┏━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┓")
+    lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
+    outerVBorder    = setAvailableSize (1, 11) vBorder
+
+{- drawBox n g
+Makes a Table widget from the cells in box n of game state
+    RETURNS: a Table widget from the cells in box n in g.
+    EXAMPLES: -
+-}
+drawBox :: Int -> Game -> Widget Name
+drawBox n g =
+    withBorderStyle unicode
+    $ renderTable
+    $ surroundingBorder False
+    $ table
+    $ chunksOf 3
+    $ map (`hightlightCursor` g)
+    $ toList
+    $ box n g
+
 {- drawCell cell g
 Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
     RETURNS:    a widget containing a cell value 'cell' from the current game state 'g'
@@ -334,47 +374,6 @@ drawBigNumber i =
                      str "  ╚═╣  ",
                      str "    ╨  "]
         _   -> str "       " <=> str "       " <=> str "       "
-               
-
-{- drawBox n g
-Makes a Table widget from the cells in box n of game state
-    RETURNS: a Table widget from the cells in box n in g.
-    EXAMPLES: -
--}
-drawBox :: Int -> Game -> Widget Name
-drawBox n g =
-    withBorderStyle unicode
-    $ renderTable
-    $ surroundingBorder False
-    $ table
-    $ chunksOf 3
-    $ map (`hightlightCursor` g)
-    $ toList
-    $ box n g
-
-{- drawGrid g
-Composites all 9 boxes of game state into a grid
-    RETURNS: A widget containing a grid which consists of all 9 boxes of g.
-    EXAMPLES: -
--}
-drawGrid :: Game -> Widget Name
-drawGrid g =
-    withBorderStyle unicodeBold
-        $ joinBorders
-        $ upperBorder
-        <=>  vBox [
-          hBox [outerVBorder, drawBox 1 g,  innerVBorder, drawBox 2 g, innerVBorder, drawBox 3 g, outerVBorder]
-        , innerHBorder
-        , hBox [outerVBorder, drawBox 4 g, innerVBorder, drawBox 5 g, innerVBorder,  drawBox 6 g, outerVBorder]
-        , innerHBorder
-        , hBox [outerVBorder, drawBox 7 g, innerVBorder, drawBox 8 g, innerVBorder, drawBox 9 g, outerVBorder]]
-        <=> lowerBorder
-        where
-    innerVBorder    = setAvailableSize (1, 11) $ withBorderStyle unicodeBold vBorder
-    innerHBorder    = setAvailableSize (73, 1) $ withBorderStyle unicodeBold (hBorderWithLabel (str "┣━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━╋━━━━━━━┿━━━━━━━┿━━━━━━━┫"))
-    upperBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┏━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┳━━━━━━━┯━━━━━━━┯━━━━━━━┓")
-    lowerBorder     = setAvailableSize (73, 1) $ hBorderWithLabel (str "┗━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┻━━━━━━━┷━━━━━━━┷━━━━━━━┛")
-    outerVBorder    = setAvailableSize (1, 11) vBorder
 
 --Info widget
 --Defines a widget with instructions for how to play the game.
