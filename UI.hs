@@ -44,7 +44,7 @@ import Brick.Widgets.FileBrowser
       FileInfo,
       FileType(RegularFile) )
 
--- ATTRIBUTES
+-- ATTRIBUTE NAMES
 lockAttr, inputAttr, noteAttr, focusedAttr, illegalAttr, focusedInputAttr, focusedNoteAttr, focusedIllegalAttr, defaultAttr :: AttrName
 logoAttr, incompleteAttr, incorrectAttr, completeAttr, illegalLockAttr, focusedIllegalInputAttr, focusedIllegalLockAttr :: AttrName
 lockAttr            = attrName "Lock"
@@ -65,6 +65,7 @@ incorrectAttr       = attrName "Incorrect"
 completeAttr        = attrName "Complete"
 
 -- ATTRIBUTE MAPS
+--An attribute map maps an attribute name to an attribute, providing a simple way to name the different color combinations that can occur in the different apps
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
     (lockAttr, fg white),
@@ -405,7 +406,6 @@ drawBigNumber i =
                      str "    ╨  "]
         _   -> str "       " <=> str "       " <=> str "       "
 
---Info widget
 --Defines a widget with instructions for how to play the game.
 drawHelp :: Widget Name
 drawHelp =
@@ -420,7 +420,7 @@ drawHelp =
       str "Undo:           U"<=> 
       str "Remove number:  Del/Backspace"
 
-
+--Defines a widget with instructions for the editor
 drawHelpEditor :: Widget Name
 drawHelpEditor =
     withBorderStyle unicodeRounded
@@ -432,7 +432,6 @@ drawHelpEditor =
 Creates a widget that displays the current status of the game depending on
 whether the grid is full, and if so if the solution is correct.  
     RETURNS:    A widget containing the current status of the game. 
-    EXAMPLES:   -
 -}
 drawStatus:: Game -> Widget ()
 drawStatus g
@@ -482,6 +481,7 @@ menuDialog :: Dialog Int
 menuDialog =
     dialog Nothing (Just (0, [("Play", 0), ("Editor", 1), ("Help", 2), ("Quit", 3)])) 100
 
+--Defines the options on the save menu
 saveDialog :: Dialog Int
 saveDialog =
     dialog Nothing (Just (1, [("Yes", 0), ("No", 1)])) 100
@@ -531,7 +531,6 @@ fileBrowser =
 {-  emptyGame
     Generates an empty game. 
     RETURNS: A game with an empty grid and a focused cell at coordinates (5,5).
-    EXAMPLES:
 -}
 emptyGame :: Game
 emptyGame = Game {
