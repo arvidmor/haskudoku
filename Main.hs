@@ -16,7 +16,12 @@ import Brick (defaultMain)
 import Brick.Widgets.FileBrowser(fileBrowserSelection, setFileBrowserEntryFilter, FileInfo(fileInfoFilename))
 
 
-
+{- main
+Runs the program haskudoku
+    SIDE EFFECTS:   Reads keyboard input 
+                    prints to the terminal
+                    reads and writes to files
+-}
 main :: IO ()
 main = do
     menuState <- defaultMain menuApp menuDialog
