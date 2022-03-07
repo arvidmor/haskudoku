@@ -263,11 +263,3 @@ box n game =
     8   -> submatrix 7 9 4 6 (grid game)
     9   -> submatrix 7 9 7 9 (grid game)
     _   -> error "Box index not in range"
-
-{- clearFile filePath
-Clears the file with file path filePath.
-    RETURNS: Nothing
-    EXAMPLES: -
--}
-clearFile :: FilePath -> IO ()
-clearFile filePath = writeFile filePath ""
