@@ -64,11 +64,9 @@ incompleteAttr      = attrName "Incomplete"
 incorrectAttr       = attrName "Incorrect"
 completeAttr        = attrName "Complete"
 
-
 -- ATTRIBUTE MAPS
 gameAttrs, menuAttrs, fileBrowserAttrs :: AttrMap
 gameAttrs = attrMap defAttr [
-
     (lockAttr, fg white),
     (defaultAttr, defAttr),
     (inputAttr, fg brightBlue),
@@ -98,11 +96,11 @@ fileBrowserAttrs = attrMap defAttr [
 
 {- App types
 The app data type is what brick uses to decide which functions define the behavior for a given app. 
-    appDraw:        Which function is used to create the widgets displayed 
+    appDraw:         which function is used to create the widgets displayed 
     appChooseCursor: where to place the cursor or which function to define cursor behaviour, if any. 
     appHandleEvent:  which funciton defines the event handling
-    appStartEvent:  An event to run when the app is initialized
-    appAttrMap:     function for of the attribute map for the app 
+    appStartEvent:   an event to run when the app is initialized
+    appAttrMap:      function for of the attribute map for the app 
 -}
 menuApp :: App (Dialog Int) a Name
 menuApp = App {
@@ -151,6 +149,12 @@ gameApp = App {
 
 --EVENT HANDLING
 --Event handling inspired by Evan Relf: https://github.com/evanrelf/sudoku-tui.git
+
+{- handleEventGame g e
+Handle keyboard input. Enables navigating the grid, entering numbers, entering notes,
+deleting numbers and notes, undoing an action and quitting the game.
+    RETURNS: Updated game state based on which key was pressed.
+-}
 handleEventGame :: Game -> BrickEvent Name a -> EventM Name (Next Game)
 --Quit game
 handleEventGame g (VtyEvent (EvKey (KChar 'q') [])) =
@@ -306,7 +310,6 @@ drawGrid g =
 {- drawBox n g
 Makes a Table widget from the cells in box n of game state
     RETURNS: a Table widget from the cells in box n in g.
-    EXAMPLES: -
 -}
 drawBox :: Int -> Game -> Widget Name
 drawBox n g =
@@ -322,7 +325,6 @@ drawBox n g =
 {- drawCell cell g
 Creates a widget from a cell value and game state. Colours the background red if the cell is illegal. 
     RETURNS:    a widget containing a cell value 'cell' from the current game state 'g'
-    EXAMPLES:   -
 -}
 drawCell :: Cell -> Game -> Widget Name
 drawCell cell game =
