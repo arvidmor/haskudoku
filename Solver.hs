@@ -7,7 +7,6 @@ import Types (Game(..), Coord, Cell(..))
 Checks if i exists inside grid's subgrid lst
     RETURNS: True if i doesn't exist in the subgrid lst, False if i does exist in the subgrid lst.
     VARIANT: length lst
-    EXAMPLES: -
 -}
 legalInSubGrid :: Cell -> [Coord] -> Game -> Bool
 legalInSubGrid _ [] _                                     = True
@@ -46,7 +45,6 @@ coordList x
 {- legalInRow (Input i) (r, c) grid
 Checks if i exists on the row r.
     RETURNS: True if i doesn't exist on r, False if i does exist on r.
-    EXAMPLES: -
 -}
 legalInRow :: Cell -> Game -> Bool
 legalInRow (Empty _) _           = True
@@ -58,7 +56,6 @@ legalInRow (Input i (r, c)) game = checkRow (Input i (r, c)) 1 game
 Checks if (Input i) is equal to any of the cells on the row x.
     RETURNS: True if (Input i) isn't equal to any cell on the row x, False if (Input i) is equal to any cell on the row x.
     VARIANT: acc
-    EXAMPLES: -
 -}
 checkRow :: Cell -> Int -> Game -> Bool
 checkRow (Input i (r, c)) acc game
@@ -88,7 +85,6 @@ legalInCol (Input i (r, c)) game = checkCol (Input i (r, c)) 1 game
 Checks if (Input i) is equal to any of the cells on the col x.
     RETURNS: True if (Input i) isn't equal to any cell on the col x, False if (Input i) is equal to any cell on the col x.
     VARIANT: acc
-    EXAMPLES: -
 -}
 checkCol :: Cell -> Int -> Game -> Bool
 checkCol (Input i (r, c)) acc game
@@ -125,7 +121,6 @@ getNotesFromCell cell =
 {- isCompleted game
 Checks if the game is finished or not
     RETURNS: True if finished, otherwise False.
-    EXAMPLES: -
 -}
 isCompleted :: Game -> Game
 isCompleted game =  if checkAllCols game && checkAllRows game && checkAllSubGrids game && isFull game then game {complete = True}
@@ -134,7 +129,6 @@ isCompleted game =  if checkAllCols game && checkAllRows game && checkAllSubGrid
 {- checkAllCols game
 Checks if the number in each cell is legal in all cols
     RETURNS: True if all cells are legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllCols :: Game -> Bool
 checkAllCols game = checkAllColsAux game 1 1
@@ -142,7 +136,6 @@ checkAllCols game = checkAllColsAux game 1 1
 {- checkAllColsAux game row col
 Goes through every col and checks if every number is legal.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllColsAux :: Game -> Int -> Int -> Bool
 checkAllColsAux game row col
@@ -152,7 +145,6 @@ checkAllColsAux game row col
 {- legalCol game row col
 Checks if each cells number is legal in a specific col.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 legalCol :: Game -> Int -> Int -> Bool
 legalCol game row col
@@ -162,7 +154,6 @@ legalCol game row col
 {- checkAllRows game
 Checks if the number in each cell is legal in all rows.
     RETURNS: True if all cells are legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllRows :: Game -> Bool
 checkAllRows game = checkAllRowsAux game 1 1
@@ -170,7 +161,6 @@ checkAllRows game = checkAllRowsAux game 1 1
 {- checkAllRowsAux game row col
 Goes through every row and checks if every number is legal.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllRowsAux :: Game -> Int -> Int -> Bool
 checkAllRowsAux game row col
@@ -180,7 +170,6 @@ checkAllRowsAux game row col
 {- legalRow game row col
 Checks if each cells number is legal in a specific row.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 legalRow :: Game -> Int -> Int -> Bool
 legalRow game row col
@@ -190,7 +179,6 @@ legalRow game row col
 {- checkAllSubGrids game
 Checks if the number of each cell is legal in all sub-grids.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllSubGrids :: Game -> Bool
 checkAllSubGrids game = checkAllSubGridsAux game 1
@@ -198,7 +186,6 @@ checkAllSubGrids game = checkAllSubGridsAux game 1
 {- checkAllSubGridsAux game boxId
 Checks if all boxes are legal.
     RETURNS: True if legal, otherwise False.
-    EXAMPLES: -
 -}
 checkAllSubGridsAux :: Game -> Int -> Bool
 checkAllSubGridsAux game boxId
@@ -208,7 +195,6 @@ checkAllSubGridsAux game boxId
 {- checkSubGrid lst
 Helper-function for checkAllSubGridsAux. Checks if each cell in a specific box is legal.
     RETURNS: True if legal, otherwise False.
-    EXAMPLE: -
 -}
 checkSubGrid :: [Cell] -> Bool
 checkSubGrid lst
@@ -228,7 +214,6 @@ unique x (a:xs)     = if a `elem` x then unique x xs else unique (a:x) xs
 {- isFull game
 Checks if the game grid is filled (contains no comments or empty cells)
     RETURNS: True if filled, otherwise False.
-    EXAMPLES: -
 -}
 isFull :: Game -> Bool
 isFull game = checkFull game [(x, y) | x <- [1..9], y <- [1..9]]
@@ -249,7 +234,6 @@ checkFull game ((r, c):xs) = case cell of
 {- box n game
 Creates a submatrix corresponding to the n'th box of the sudoku-grid
     RETURNS:    the n'th box of the grid in the current state game
-    EXAMPLES:
 -}
 box :: Int -> Game -> Matrix Cell
 box n game =
